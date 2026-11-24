@@ -230,8 +230,8 @@
 
 ## 13. Autor & Contato
 
-**Milton Bacuau**  
-Email: bacudigital@gmail.com  
+**Milton da Silva Tavares Neto**  
+Email: milton2003profissional@gmail.com  
 Instituição: UFRA (Universidade Federal Rural da Amazônia)  
 Orientador: [Preenchido na dissertação]
 

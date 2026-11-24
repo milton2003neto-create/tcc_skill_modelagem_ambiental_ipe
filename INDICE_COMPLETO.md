@@ -2,7 +2,7 @@
 
 **Data:** 2026-11-24  
 **Status:** 80% (R01-R30 ✓, R31 framework ✓, Dissertação ⏳)  
-**Autor:** Milton Bacuau
+**Autor:** Milton da Silva Tavares Neto
 
 ---
 
@@ -191,8 +191,8 @@ b7e8f84 — R31 framework template: validacao externa 7 propriedades
 
 ## 📞 CONTATO
 
-**Autor:** Milton Bacuau  
-**Email:** bacudigital@gmail.com  
+**Autor:** Milton da Silva Tavares Neto  
+**Email:** milton2003profissional@gmail.com  
 **Instituição:** UFRA (Universidade Federal Rural da Amazônia)  
 **TCC:** Modelagem Ambiental de Ipês em Florestas Manejadas do Pará
 

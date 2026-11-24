@@ -312,4 +312,4 @@ Dissertação:
 **Versão:** 1.0  
 **Atualizado:** 2026-11-24  
 **Próxima Revisão:** Após R31 completo (esperado ~1 semana)  
-**Owner:** Milton Bacuau (bacudigital@gmail.com)
+**Owner:** Milton da Silva Tavares Neto (milton2003profissional@gmail.com)

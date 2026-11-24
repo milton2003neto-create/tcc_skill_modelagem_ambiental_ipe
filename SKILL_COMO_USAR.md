@@ -295,7 +295,7 @@ Rscript "R31_TCC_IPES_VALIDACAO_EXTERNA_V1/main.R"
 ## Contato & Suporte
 
 **Autor:** Milton Bacuau  
-**Email:** bacudigital@gmail.com  
+**Email:** milton2003profissional@gmail.com  
 **TCC:** Modelagem Ambiental de Ipês em Florestas Manejadas do Pará  
 **UFRA:** Universidade Federal Rural da Amazônia
 

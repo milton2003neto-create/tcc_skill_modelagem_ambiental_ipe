@@ -139,8 +139,8 @@ TCC MILTON/
 
 ## 📞 9. Contato
 
-**Autor:** Milton Bacuau  
-**Email:** bacudigital@gmail.com  
+**Autor:** Milton da Silva Tavares Neto  
+**Email:** milton2003profissional@gmail.com  
 **Instituição:** UFRA
 
 ---
