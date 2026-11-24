@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Ambiente — TCC Ipês</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .dashboard {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            border-left: 5px solid #ccc;
+            transition: all 0.3s ease;
+        }
+
+        .status-row.ok {
+            border-left-color: #27ae60;
+            background: #ecfdf5;
+        }
+
+        .status-row.fail {
+            border-left-color: #e74c3c;
+            background: #fef5f5;
+        }
+
+        .status-icon {
+            font-size: 2.5em;
+            margin-right: 20px;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .status-content {
+            flex: 1;
+        }
+
+        .status-label {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .status-detail {
+            font-size: 0.95em;
+            color: #7f8c8d;
+            margin: 5px 0;
+        }
+
+        .status-row.ok .status-detail {
+            color: #27ae60;
+        }
+
+        .status-row.fail .status-detail {
+            color: #e74c3c;
+        }
+
+        .summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .summary-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .summary-status {
+            font-size: 2em;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #27ae60;
+            width: 66%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.fail {
+            background: #e74c3c;
+            width: 33%;
+        }
+
+        .actions {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #ecf0f1;
+        }
+
+        .action-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .action-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .action-box.success {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+
+        .action-box.error {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+
+        code {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            display: block;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .metric-grid {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .status-row {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .status-icon {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌳 TCC Ipês — Dashboard Ambiente</h1>
+            <p>Verificação status sistema para executar skill</p>
+        </header>
+
+        <div class="dashboard">
+            <!-- Python -->
+            <div class="status-row ok">
+                <div class="status-icon">✅</div>
+                <div class="status-content">
+                    <div class="status-label">Python</div>
+                    <div class="status-detail">Versão: 3.13.15</div>
+                    <div class="status-detail">Requisito: ≥ 3.8 ✓</div>
+                </div>
+            </div>
+
+            <!-- R -->
+            <div class="status-row fail">
+                <div class="status-icon">❌</div>
+                <div class="status-content">
+                    <div class="status-label">R (MaxEnt)</div>
+                    <div class="status-detail">Status: Não encontrado</div>
+                    <div class="status-detail">Requisito: ≥ 4.0 ✗</div>
+                    <div class="status-detail" style="color: #e74c3c; font-weight: bold;">⚠️ BLOQUEADOR CRÍTICO</div>
+                </div>
+            </div>
+
+            <!-- Diretórios -->
+            <div class="status-row ok">
+                <div class="status-icon">📁</div>
+                <div class="status-content">
+                    <div class="status-label">Diretórios Projeto</div>
+                    <div class="status-detail">R28, R29, R30, R31: Existem ✓</div>
+                    <div class="status-detail">Dados preparação: OK</div>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="summary">
+                <div class="summary-title">📊 Status Geral</div>
+                <div class="summary-status">⚠️ INCOMPLETO (66%)</div>
+                <div class="progress-bar">
+                    <div class="progress-fill fail">66%</div>
+                </div>
+                <div style="margin-top: 15px; font-size: 0.95em;">
+                    2 de 3 requisitos atendidos<br>
+                    <strong style="color: #ffc107;">Skill não pode executar sem R</strong>
+                </div>
+            </div>
+
+            <!-- Ações -->
+            <div class="actions">
+                <div class="action-title">🔧 Como Resolver</div>
+
+                <div class="action-box error">
+                    <strong>❌ Problema: R não encontrado</strong>
+                    <p style="margin-top: 10px;">R é obrigatório para executar modelos MaxEnt (R28-R31). Sem R, skill não funciona.</p>
+                </div>
+
+                <div class="action-box">
+                    <strong>📥 Solução 1: Instalar R (Windows)</strong>
+                    <ol style="margin-top: 10px; margin-left: 20px;">
+                        <li>Acesse: <strong>https://cran.r-project.org/</strong></li>
+                        <li>Clique: <strong>"Download R for Windows"</strong></li>
+                        <li>Baixe: <strong>"R-4.3.3-win.exe"</strong> (ou versão mais recente)</li>
+                        <li>Execute: instalador (use defaults)</li>
+                        <li>Reinicie: seu computador</li>
+                    </ol>
+                    <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                        ⏱️ Tempo: ~5-10 minutos (depende da internet)
+                    </p>
+                </div>
+
+                <div class="action-box">
+                    <strong>📦 Solução 2: Instalar Pacotes R (Obrigatório)</strong>
+                    <p style="margin-top: 10px;">Após instalar R, abra PowerShell/CMD e execute:</p>
+                    <code>Rscript -e "install.packages(c('maxnet','ecospat','raster','sp'))"</code>
+                    <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                        ⏱️ Tempo: ~3-5 minutos (download pacotes)<br>
+                        ℹ️ Pode pedir "Update packages?" → responda <strong>n</strong> (não atualizar)
+                    </p>
+                </div>
+
+                <div class="action-box">
+                    <strong>✅ Solução 3: Testar Instalação</strong>
+                    <p style="margin-top: 10px;">Após instalar, execute no PowerShell:</p>
+                    <code>Rscript --version</code>
+                    <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                        Se aparecer versão R, está OK! Próximo: execute skill novamente.
+                    </p>
+                </div>
+
+                <div class="action-box success">
+                    <strong>🎯 Próximo Passo (Após instalar R)</strong>
+                    <p style="margin-top: 10px;">Execute:</p>
+                    <code>python skill_modelagem_ipes.py</code>
+                    <p style="margin-top: 10px; font-size: 0.9em; color: #27ae60;">
+                        ✓ Skill vai iniciar R28 → R30 → R31<br>
+                        ⏱️ Tempo total: ~4-5 horas
+                    </p>
+                </div>
+
+                <div class="metric-grid" style="margin-top: 30px;">
+                    <div style="background: #ecf0f1; padding: 15px; border-radius: 10px;">
+                        <strong>Requisitos Válidos ✓</strong>
+                        <ul style="margin-top: 10px; margin-left: 20px; font-size: 0.95em;">
+                            <li>Python 3.13.15</li>
+                            <li>Diretórios projeto</li>
+                            <li>Datasets R01-R30</li>
+                        </ul>
+                    </div>
+                    <div style="background: #fef5f5; padding: 15px; border-radius: 10px; border-left: 4px solid #e74c3c;">
+                        <strong>Faltando ✗</strong>
+                        <ul style="margin-top: 10px; margin-left: 20px; font-size: 0.95em;">
+                            <li style="color: #e74c3c;">R ≥ 4.0</li>
+                            <li style="color: #e74c3c;">Pacotes maxnet/ecospat</li>
+                            <li style="color: #e74c3c;">Integração PATH</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer style="color: white; text-align: center; margin-top: 30px; font-size: 0.9em;">
+            <p>TCC Modelagem Ambiental de Ipês — UFRA 2026</p>
+            <p>Suporte: bacudigital@gmail.com</p>
+        </footer>
+    </div>
+</body>
+</html>
