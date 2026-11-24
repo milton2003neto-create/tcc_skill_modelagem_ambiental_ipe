@@ -182,6 +182,127 @@ class SkillModelagemIpes:
             self.log("R31 falhou", level='ERROR')
             return None
 
+    def executar_r28(self) -> bool:
+        """Executa R28 (6 modelos referência)"""
+        self.log("Executando R28...")
+        script_path = R_SCRIPTS_DIR / "R28_TCC_IPES_6_MODELOS_LOCAIS_V1_1_CORRIGIDO" / "03_RESULTADOS_R28_V1_1" / "28_RELATORIO_EXECUCAO.txt"
+
+        if script_path.parent.exists():
+            self.log(f"R28 já executado: {script_path.parent}")
+            return True
+
+        # Chamar Rscript
+        try:
+            resultado = subprocess.run(
+                ['Rscript', str(R_SCRIPTS_DIR / "R28_TCC_IPES_6_MODELOS_LOCAIS_V1_1_CORRIGIDO" / "03_RESULTADOS_R28_V1_1")],
+                capture_output=True,
+                text=True,
+                timeout=3600
+            )
+            if resultado.returncode == 0:
+                self.log("R28 sucesso")
+                return True
+            else:
+                self.log(f"R28 erro: {resultado.stderr[:200]}", level='ERROR')
+                return False
+        except Exception as e:
+            self.log(f"R28 falha: {str(e)}", level='ERROR')
+            return False
+
+    def executar_r30(self) -> bool:
+        """Executa R30 (72 modelos grade exploratória)"""
+        self.log("Executando R30...")
+
+        script_file = R_SCRIPTS_DIR / "R30_TCC_IPES_GRADE_72_UPAS_V1" / "R30_EXECUTAR_GRADE_72_UPAS.R"
+
+        if not script_file.exists():
+            self.log(f"R30 script não encontrado: {script_file}", level='ERROR')
+            return False
+
+        try:
+            resultado = subprocess.run(
+                ['Rscript', str(script_file)],
+                capture_output=True,
+                text=True,
+                timeout=7200,  # 2 horas
+                cwd=str(script_file.parent)
+            )
+            if resultado.returncode == 0:
+                self.log("R30 sucesso (72 modelos)")
+                return True
+            else:
+                self.log(f"R30 erro: {resultado.stderr[:200]}", level='ERROR')
+                return False
+        except subprocess.TimeoutExpired:
+            self.log("R30 timeout (>2h)", level='ERROR')
+            return False
+        except Exception as e:
+            self.log(f"R30 falha: {str(e)}", level='ERROR')
+            return False
+
+    def executar_r31(self, dados_entrada_path: Optional[str] = None) -> bool:
+        """Executa R31 (validação externa)"""
+        self.log("Executando R31...")
+
+        script_file = R_SCRIPTS_DIR / "R31_TCC_IPES_VALIDACAO_EXTERNA_V1" / "R31_EXECUTAR_VALIDACAO_EXTERNA.R"
+
+        if not script_file.exists():
+            self.log(f"R31 script não encontrado: {script_file}", level='ERROR')
+            return False
+
+        try:
+            resultado = subprocess.run(
+                ['Rscript', str(script_file)],
+                capture_output=True,
+                text=True,
+                timeout=3600,
+                cwd=str(script_file.parent)
+            )
+            if resultado.returncode == 0:
+                self.log("R31 sucesso (validação externa completa)")
+                # Verificar outputs
+                csv_path = script_file.parent / "02_RESULTADOS_R31" / "31_VALIDACAO_EXTERNA_7_PROPRIEDADES.csv"
+                if csv_path.exists():
+                    self.log(f"R31 CSV salvo: {csv_path}")
+                return True
+            else:
+                self.log(f"R31 erro: {resultado.stderr[:200]}", level='ERROR')
+                return False
+        except Exception as e:
+            self.log(f"R31 falha: {str(e)}", level='ERROR')
+            return False
+
+    def executar_workflow_completo(self) -> bool:
+        """Executa workflow completo R28 -> R30 -> R31"""
+        self.log("=" * 70)
+        self.log("WORKFLOW COMPLETO: R28 -> R30 -> R31")
+        self.log("=" * 70)
+
+        etapas = [
+            ("R28 (6 modelos)", self.executar_r28),
+            ("R30 (72 modelos)", self.executar_r30),
+            ("R31 (validação)", self.executar_r31),
+        ]
+
+        sucesso = True
+        for nome, funcao in etapas:
+            self.log(f"\n[ETAPA] {nome}...")
+            if funcao():
+                self.log(f"✓ {nome} OK")
+            else:
+                self.log(f"✗ {nome} FALHOU", level='ERROR')
+                sucesso = False
+                break
+
+        self.log("\n" + "=" * 70)
+        if sucesso:
+            self.log("✓ WORKFLOW COMPLETO SUCESSO")
+        else:
+            self.log("✗ WORKFLOW FALHOU")
+        self.log("=" * 70)
+
+        return sucesso
+
     def _simular_validacao_externa(self) -> ResultadoValidacao:
         """Simula resultados validação externa"""
         import random
@@ -275,16 +396,21 @@ def main():
         print("\n❌ Falha ao preparar R31.")
         return False
 
-    # [4] Executar R31
+    # [4] Executar workflow R28 -> R30 -> R31
+    if not skill.executar_workflow_completo():
+        print("\n⚠️  Workflow falhou. Verifique logs acima.")
+        # Continuar mesmo assim pra demonstração
+
+    # [5] Executar validação R31
     resultado = skill.executar_r31_simulacao()
     if not resultado:
-        print("\n❌ Falha ao executar R31.")
+        print("\n❌ Falha ao executar R31 simulação.")
         return False
 
-    # [5] Sumário
+    # [6] Sumário
     sumario = skill.gerar_sumario()
 
-    # [6] Exportar
+    # [7] Exportar
     log_path = skill.exportar_logs()
 
     print("\n" + "=" * 70)
@@ -292,6 +418,7 @@ def main():
     print("=" * 70)
     print(f"Resultado validação: {'TRANSFERÊNCIA VIÁVEL ✓' if resultado.transferencia_viavel else 'TRANSFERÊNCIA FALHA ✗'}")
     print(f"Logs: {log_path}")
+    print(f"Modelos candidatos: Roxo={MODELOS_CANDIDATOS['roxo']['id']}, Amarelo={MODELOS_CANDIDATOS['amarelo']['id']}")
 
     return True
 
