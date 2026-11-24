@@ -1,6 +1,6 @@
 # TCC: Modelagem Ambiental de Ipês em Florestas Manejadas do Pará
 
-**Autor:** Milton Bacuau (bacudigital@gmail.com)  
+**Autor:** Milton da Silva Tavares Neto (milton2003profissional@gmail.com)  
 **Instituição:** UFRA (Universidade Federal Rural da Amazônia)  
 **Data:** 2026-11-24  
 **Status:** 80% (Consolidação + R31 + Skill | Dissertação pendente)  
@@ -234,8 +234,8 @@ b7e8f84 — R31 framework template: validacao externa 7 propriedades
 
 ## Contato & Recursos
 
-**Autor:** Milton Bacuau  
-**Email:** bacudigital@gmail.com  
+**Autor:** Milton Tavares  
+**Email:** milton2003profissional@gmail.com
 **Instituição:** UFRA (Universidade Federal Rural da Amazônia)
 
 **Documentação completa:**
