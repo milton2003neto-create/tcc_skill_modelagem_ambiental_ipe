@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R31 — Simulador Validação Externa</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        header p {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+        .panel {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+        }
+        .panel h2 {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px 0;
+            font-weight: 600;
+            color: #34495e;
+            font-size: 0.9em;
+        }
+        input[type="number"], input[type="text"], select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .results {
+            grid-column: 1 / -1;
+        }
+        .results h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+        th {
+            background: #34495e;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:hover {
+            background: #f0f0f0;
+        }
+        .metric {
+            display: inline-block;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 4px;
+            margin: 10px 10px 10px 0;
+            border-left: 4px solid;
+        }
+        .metric.success {
+            border-left-color: #27ae60;
+        }
+        .metric.warning {
+            border-left-color: #f39c12;
+        }
+        .metric.danger {
+            border-left-color: #e74c3c;
+        }
+        .metric-label {
+            font-size: 0.8em;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        .status-ok {
+            background: #d5f4e6;
+            color: #27ae60;
+        }
+        .status-warning {
+            background: #fdf2e9;
+            color: #f39c12;
+        }
+        .status-fail {
+            background: #fadbd8;
+            color: #e74c3c;
+        }
+        .summary {
+            grid-column: 1 / -1;
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        .summary h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        .success-text {
+            color: #27ae60;
+            font-weight: 600;
+        }
+        .danger-text {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>R31 — Simulador Validação Externa</h1>
+            <p>TCC Modelagem Ambiental de Ipês • Teste de Transferência Espacial</p>
+        </header>
+
+        <div class="content">
+            <!-- Painel 1: Configuração -->
+            <div class="panel">
+                <h2>⚙️ Configuração</h2>
+
+                <label for="n_props">Número de Propriedades Externas:</label>
+                <input type="number" id="n_props" value="7" min="1" max="10">
+
+                <label for="n_roxo">Presencas Roxo por Propriedade:</label>
+                <input type="number" id="n_roxo" value="30" min="10" max="100">
+
+                <label for="n_amarelo">Presencas Amarelo por Propriedade:</label>
+                <input type="number" id="n_amarelo" value="30" min="10" max="100">
+
+                <label for="noise">Ruído nos Dados (%):</label>
+                <input type="number" id="noise" value="10" min="0" max="50" step="5">
+
+                <label for="decay">Degradação AUC vs R28 (%):</label>
+                <input type="number" id="decay" value="20" min="0" max="50" step="5">
+
+                <button onclick="gerarDadosSimulados()">Gerar Dados Simulados</button>
+            </div>
+
+            <!-- Painel 2: Modelos R28 -->
+            <div class="panel">
+                <h2>📊 Modelos Candidatos R28</h2>
+
+                <label>Roxo — Referência</label>
+                <div style="background: white; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+                    <p><strong>ID:</strong> R28_ROXO_LOCAL_UPAS_01_LQH_RM4</p>
+                    <p><strong>AUC (Treino):</strong> 0.5566</p>
+                    <p><strong>Boyce:</strong> 0.842</p>
+                    <p><strong>Features:</strong> LQH, RM=4</p>
+                </div>
+
+                <label>Amarelo — Referência</label>
+                <div style="background: white; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+                    <p><strong>ID:</strong> R28_AMARELO_LOCAL_UPAS_03_LQH_RM4</p>
+                    <p><strong>AUC (Treino):</strong> 0.6813</p>
+                    <p><strong>Boyce:</strong> 0.934</p>
+                    <p><strong>Features:</strong> LQH, RM=4</p>
+                </div>
+
+                <button onclick="executarValidacao()">Executar Validação</button>
+            </div>
+
+            <!-- Painel 3: Métricas Consolidadas -->
+            <div class="panel">
+                <h2>📈 Métricas Consolidadas</h2>
+                <div id="metricas-consolidated">
+                    <p style="color: #95a5a6; text-align: center;">Aguardando simulação...</p>
+                </div>
+            </div>
+
+            <!-- Painel 4: Critério de Sucesso -->
+            <div class="panel">
+                <h2>✓ Critério de Sucesso</h2>
+                <div id="criterio">
+                    <p style="color: #95a5a6; text-align: center;">Aguardando simulação...</p>
+                </div>
+            </div>
+
+            <!-- Tabela de Resultados -->
+            <div class="results">
+                <h2>Resultados Validação por Propriedade</h2>
+                <div id="resultados-table">
+                    <p style="text-align: center; color: #95a5a6;">Aguardando simulação...</p>
+                </div>
+            </div>
+
+            <!-- Sumário Final -->
+            <div class="summary">
+                <h3>Sumário & Recomendações</h3>
+                <div id="sumario">
+                    <p>1. Configure dados (painel esquerdo)</p>
+                    <p>2. Clique em "Gerar Dados Simulados"</p>
+                    <p>3. Clique em "Executar Validação"</p>
+                    <p>4. Analise resultados</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // R28 Baseline
+        const R28_BASELINE = {
+            roxo: { auc: 0.5566, boyce: 0.842, omissao: 0.0025 },
+            amarelo: { auc: 0.6813, boyce: 0.934, omissao: 0.0519 }
+        };
+
+        let dadosSimulados = null;
+
+        function gerarDadosSimulados() {
+            const n_props = parseInt(document.getElementById('n_props').value);
+            const n_roxo = parseInt(document.getElementById('n_roxo').value);
+            const n_amarelo = parseInt(document.getElementById('n_amarelo').value);
+            const noise = parseInt(document.getElementById('noise').value);
+
+            dadosSimulados = {
+                propriedades: [],
+                presencas: { roxo: [], amarelo: [] }
+            };
+
+            // Nomes 7 propriedades
+            const nomes = ['Barro Branco', 'Curuça', 'Guariúba', 'Jatobá', 'Prop 5', 'Prop 6', 'Prop 7'];
+
+            for (let i = 0; i < n_props; i++) {
+                dadosSimulados.propriedades.push({
+                    id: i + 1,
+                    nome: nomes[i] || `Propriedade ${i + 1}`,
+                    lon: -56 - Math.random() * 2,
+                    lat: -2 - Math.random() * 2
+                });
+
+                // Gerar presencas com ruído
+                const roxo_count = Math.max(5, n_roxo + Math.floor((Math.random() - 0.5) * noise));
+                const amarelo_count = Math.max(5, n_amarelo + Math.floor((Math.random() - 0.5) * noise));
+
+                dadosSimulados.presencas.roxo.push(roxo_count);
+                dadosSimulados.presencas.amarelo.push(amarelo_count);
+            }
+
+            alert(`✓ Dados gerados para ${n_props} propriedades\n• Roxo: ${dadosSimulados.presencas.roxo.reduce((a,b)=>a+b,0)} presencas\n• Amarelo: ${dadosSimulados.presencas.amarelo.reduce((a,b)=>a+b,0)} presencas`);
+        }
+
+        function executarValidacao() {
+            if (!dadosSimulados) {
+                alert('Gere dados primeiro!');
+                return;
+            }
+
+            const decay = parseInt(document.getElementById('decay').value) / 100;
+            let resultados = [];
+            let auc_roxo_valores = [];
+            let auc_amarelo_valores = [];
+            let boyce_roxo_valores = [];
+            let boyce_amarelo_valores = [];
+
+            // Simular validação para cada propriedade
+            for (let i = 0; i < dadosSimulados.propriedades.length; i++) {
+                const prop = dadosSimulados.propriedades[i];
+
+                // Roxo
+                const auc_roxo = R28_BASELINE.roxo.auc * (1 - decay) + Math.random() * 0.1;
+                const boyce_roxo = R28_BASELINE.roxo.boyce * (1 - decay * 0.5) + (Math.random() - 0.5) * 0.2;
+                const omissao_roxo = R28_BASELINE.roxo.omissao + Math.random() * 0.1;
+
+                auc_roxo_valores.push(auc_roxo);
+                boyce_roxo_valores.push(boyce_roxo);
+
+                resultados.push({
+                    especie: 'Roxo',
+                    propriedade: prop.nome,
+                    n_presencas: dadosSimulados.presencas.roxo[i],
+                    auc: auc_roxo.toFixed(4),
+                    boyce: boyce_roxo.toFixed(3),
+                    omissao: omissao_roxo.toFixed(4),
+                    status: auc_roxo >= 0.5 && boyce_roxo >= 0 ? 'OK' : 'ALERTA'
+                });
+
+                // Amarelo
+                const auc_amarelo = R28_BASELINE.amarelo.auc * (1 - decay) + Math.random() * 0.1;
+                const boyce_amarelo = R28_BASELINE.amarelo.boyce * (1 - decay * 0.5) + (Math.random() - 0.5) * 0.2;
+                const omissao_amarelo = R28_BASELINE.amarelo.omissao + Math.random() * 0.1;
+
+                auc_amarelo_valores.push(auc_amarelo);
+                boyce_amarelo_valores.push(boyce_amarelo);
+
+                resultados.push({
+                    especie: 'Amarelo',
+                    propriedade: prop.nome,
+                    n_presencas: dadosSimulados.presencas.amarelo[i],
+                    auc: auc_amarelo.toFixed(4),
+                    boyce: boyce_amarelo.toFixed(3),
+                    omissao: omissao_amarelo.toFixed(4),
+                    status: auc_amarelo >= 0.5 && boyce_amarelo >= 0 ? 'OK' : 'ALERTA'
+                });
+            }
+
+            // Calcular médias
+            const auc_roxo_med = (auc_roxo_valores.reduce((a,b)=>a+b,0) / auc_roxo_valores.length).toFixed(4);
+            const auc_amarelo_med = (auc_amarelo_valores.reduce((a,b)=>a+b,0) / auc_amarelo_valores.length).toFixed(4);
+            const boyce_roxo_med = (boyce_roxo_valores.reduce((a,b)=>a+b,0) / boyce_roxo_valores.length).toFixed(3);
+            const boyce_amarelo_med = (boyce_amarelo_valores.reduce((a,b)=>a+b,0) / boyce_amarelo_valores.length).toFixed(3);
+
+            // Contar sucessos
+            const auc_ok = auc_roxo_valores.filter(v => v >= 0.5).length + auc_amarelo_valores.filter(v => v >= 0.5).length;
+            const boyce_ok = boyce_roxo_valores.filter(v => v >= 0).length + boyce_amarelo_valores.filter(v => v >= 0).length;
+
+            // Exibir métricas
+            document.getElementById('metricas-consolidated').innerHTML = `
+                <div class="metric success">
+                    <div class="metric-label">AUC Roxo (Média)</div>
+                    <div class="metric-value">${auc_roxo_med}</div>
+                </div>
+                <div class="metric success">
+                    <div class="metric-label">AUC Amarelo (Média)</div>
+                    <div class="metric-value">${auc_amarelo_med}</div>
+                </div>
+                <div class="metric success">
+                    <div class="metric-label">Boyce Roxo (Média)</div>
+                    <div class="metric-value">${boyce_roxo_med}</div>
+                </div>
+                <div class="metric success">
+                    <div class="metric-label">Boyce Amarelo (Média)</div>
+                    <div class="metric-value">${boyce_amarelo_med}</div>
+                </div>
+            `;
+
+            // Critério de sucesso
+            const success_auc = auc_ok >= dadosSimulados.propriedades.length * 2 * 0.7; // 5+ de ~14
+            const success_boyce = boyce_ok >= dadosSimulados.propriedades.length * 2 * 0.85; // 6+ de ~14
+
+            const criterio_html = `
+                <p><span class="status-badge ${success_auc ? 'status-ok' : 'status-fail'}">
+                    AUC >= 0.5: ${auc_ok}/${dadosSimulados.propriedades.length * 2} ${success_auc ? '✓' : '✗'}
+                </span></p>
+                <p><span class="status-badge ${success_boyce ? 'status-ok' : 'status-warning'}">
+                    Boyce >= 0: ${boyce_ok}/${dadosSimulados.propriedades.length * 2} ${success_boyce ? '✓' : '✗'}
+                </span></p>
+            `;
+            document.getElementById('criterio').innerHTML = criterio_html;
+
+            // Tabela
+            let tabela = '<table><tr><th>Espécie</th><th>Propriedade</th><th>N Presenças</th><th>AUC</th><th>Boyce</th><th>Omissão P10</th><th>Status</th></tr>';
+            resultados.forEach(r => {
+                const statusClass = r.status === 'OK' ? 'status-ok' : 'status-warning';
+                tabela += `<tr><td>${r.especie}</td><td>${r.propriedade}</td><td>${r.n_presencas}</td><td>${r.auc}</td><td>${r.boyce}</td><td>${r.omissao}</td><td><span class="status-badge ${statusClass}">${r.status}</span></td></tr>`;
+            });
+            tabela += '</table>';
+            document.getElementById('resultados-table').innerHTML = tabela;
+
+            // Sumário
+            const transferencia_ok = success_auc && success_boyce;
+            const sumario_html = `
+                <p><strong>Resultado Final:</strong> ${transferencia_ok ? '<span class="success-text">✓ Transferência Viável</span>' : '<span class="danger-text">✗ Transferência Falha</span>'}</p>
+                <p><strong>Interpretação:</strong> ${transferencia_ok ? 'Modelos R28 transferem para 7 propriedades com degradação ~' + (decay*100).toFixed(0) + '%.' : 'Modelos precisam retrainamento ou ajuste.'}</p>
+                <p><strong>Próximo:</strong> ${transferencia_ok ? 'Preparar mapas finais para dissertação' : 'Revisitar features ou preditores'}</p>
+            `;
+            document.getElementById('sumario').innerHTML = sumario_html;
+        }
+    </script>
+</body>
+</html>
