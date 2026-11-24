@@ -1,0 +1,58 @@
+R31 - VALIDACAO EXTERNA EM 7 PROPRIEDADES
+==========================================
+
+STATUS: Template vazio — Aguardando dados 7 propriedades
+
+OBJETIVO
+- Testar transferibilidade de modelos R28 LQH RM4
+- Treino: 27 propriedades + 64 UPAs (R28)
+- Validacao: 7 propriedades externas (nao usadas em treino)
+- Esperado: AUC queda 20-40% vs R28
+
+MODELOS CANDIDATOS
+- Roxo: R28_ROXO_LOCAL_UPAS_01_LQH_RM4 (AUC 0.5566, Boyce 0.842)
+- Amarelo: R28_AMARELO_LOCAL_UPAS_03_LQH_RM4 (AUC 0.6813, Boyce 0.934)
+
+ENTRADAS NECESSARIAS
+Pasta: 01_ENTRADAS_EXTERNAS
+- Presencas_Roxo_7props.csv (cols: lon, lat, propriedade)
+- Presencas_Amarelo_7props.csv (cols: lon, lat, propriedade)
+- Grid_Preditores_7props.tif ou .csv (altitude, declividade, dist_rio, BIO12, BIO17, solo)
+- Manifesto: 31_MANIFESTO_ENTRADAS.csv (MD5, tamanho)
+
+METADADOS ESPERADOS
+7 propriedades externas:
+- Propriedade 1: Barro Branco
+- Propriedade 2: Curuça
+- Propriedade 3: Guariúba
+- Propriedade 4: Jatobá
+- Propriedade 5: (nome desconhecido)
+- Propriedade 6: (nome desconhecido)
+- Propriedade 7: (nome desconhecido)
+
+COMO USAR
+1. Obter dados 7 propriedades (presencas + preditores 30m)
+2. Colocar CSVs em 01_ENTRADAS_EXTERNAS/
+3. Executar R31_VALIDACAO_EXTERNA.R no RStudio (Source)
+4. Outputs gerados em 02_RESULTADOS_R31/
+
+SAIDAS ESPERADAS
+- 31_VALIDACAO_EXTERNA_7_PROPRIEDADES.csv (AUC, Boyce, omissao, propriedade)
+- 31_MAPAS_ROXO_*.png (3 mapas: 1 por painel R28)
+- 31_MAPAS_AMARELO_*.png (3 mapas: 1 por painel R28)
+- 31_RELATORIO_VALIDACAO.txt (sumario)
+
+PARAMETROS
+- Features: LQH (fixo)
+- RM: 4 (fixo)
+- Previsao: cloglog, clamp=TRUE
+- Limiares: P10 de R28 (fixo)
+
+TEMPO ESTIMADO
+- Preparacao entradas: 30 min
+- Execucao R: 1-2 horas
+- Total: ~2.5 horas
+
+VERSAO: R31 V1 — Template framework
+DATA: 2026-11-24
+STATUS: Pronto para preenchimento dados
