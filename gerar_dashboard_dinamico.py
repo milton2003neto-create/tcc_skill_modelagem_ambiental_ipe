@@ -5,9 +5,13 @@ Gerador Dashboard Dinâmico — Verifica ambiente real
 Atualiza DASHBOARD_AMBIENTE.html com status atual
 """
 
+import sys
+import os
+sys.stdout.reconfigure(encoding='utf-8')
+os.environ['PYTHONIOENCODING'] = 'utf-8'
+
 import shutil
 import subprocess
-import sys
 from pathlib import Path
 from datetime import datetime
 
