@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório Execução — TCC Ipês</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .content {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            font-size: 1.8em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .status-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .status-card h3 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .status-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .status-card .time {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .models-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .models-table th {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .models-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .models-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .metric {
+            display: inline-block;
+            background: #ecf0f1;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .metric strong {
+            color: #2c3e50;
+        }
+
+        .info-box {
+            background: #d4edda;
+            border-left: 4px solid #27ae60;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .info-box h4 {
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+
+        .info-box p {
+            color: #155724;
+            line-height: 1.6;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #ecf0f1;
+            color: #7f8c8d;
+            font-size: 0.95em;
+        }
+
+        .timestamp {
+            font-size: 0.9em;
+            color: #999;
+            margin-top: 20px;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 0.95em;
+        }
+
+        @media (max-width: 768px) {
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Relatório Execução</h1>
+            <p>TCC Modelagem Ambiental de Ipês</p>
+        </header>
+
+        <div class="content">
+            <!-- Status Geral -->
+            <div class="section">
+                <h2>⚡ Status Execução</h2>
+                <div class="status-grid">
+                    <div class="status-card">
+                        <h3>R28</h3>
+                        <div class="value">✅ OK</div>
+                        <div class="time">6 modelos</div>
+                    </div>
+                    <div class="status-card">
+                        <h3>R30</h3>
+                        <div class="value">✅ OK</div>
+                        <div class="time">72 modelos</div>
+                    </div>
+                    <div class="status-card">
+                        <h3>R31</h3>
+                        <div class="value">✅ OK</div>
+                        <div class="time">Validação</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modelos Candidatos -->
+            <div class="section">
+                <h2>🎯 Modelos Candidatos</h2>
+
+                <div class="info-box">
+                    <h4>Ipê Roxo</h4>
+                    <p>
+                        <strong>ID:</strong> R28_ROXO_LOCAL_UPAS_01_LQH_RM4<br>
+                        <strong>Features:</strong> LQH<br>
+                        <strong>Regularização:</strong> RM=4<br>
+                        <strong>AUC Treino:</strong> 0.5566<br>
+                        <strong>Boyce:</strong> 0.8420
+                    </p>
+                </div>
+
+                <div class="info-box">
+                    <h4>Ipê Amarelo</h4>
+                    <p>
+                        <strong>ID:</strong> R28_AMARELO_LOCAL_UPAS_03_LQH_RM4<br>
+                        <strong>Features:</strong> LQH<br>
+                        <strong>Regularização:</strong> RM=4<br>
+                        <strong>AUC Treino:</strong> 0.6813<br>
+                        <strong>Boyce:</strong> 0.9340
+                    </p>
+                </div>
+            </div>
+
+            <!-- Validação Externa -->
+            <div class="section">
+                <h2>🌍 Validação Externa (R31)</h2>
+
+                <p><strong>Resultado:</strong> <strong style="color: #e74c3c">❌ FALHA</strong></p>
+
+                <div class='info-box' style='background: #f8d7da; border-left-color: #dc3545;'><h4 style='color: #dc3545;'>❌ Transferência Falha</h4><p style='color: #721c24;'>Degradação maior que esperado. Revisar preditores ou retrainar com 7 propriedades.</p></div>
+
+                <table class="models-table">
+                    <thead>
+                        <tr>
+                            <th>Propriedade</th>
+                            <th>Presencas</th>
+                            <th>AUC</th>
+                            <th>Boyce</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Barro Branco</td>
+                            <td>29</td>
+                            <td>0.521</td>
+                            <td>0.645</td>
+                            <td>Simulado</td>
+                        </tr>
+                        <tr>
+                            <td>Curuça</td>
+                            <td>31</td>
+                            <td>0.548</td>
+                            <td>0.712</td>
+                            <td>Simulado</td>
+                        </tr>
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #999;">... (7 propriedades totais)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Próximas Etapas -->
+            <div class="section">
+                <h2>📋 Próximas Etapas</h2>
+
+                <p><strong>20% Restante do Projeto:</strong></p>
+
+                <ol style="margin-left: 20px; line-height: 1.8; color: #2c3e50;">
+                    <li><strong>Dissertação</strong> (4-6 semanas)
+                        <ul style="margin-top: 5px; margin-left: 20px;">
+                            <li>Introdução, Revisão, Métodos</li>
+                            <li>Resultados, Discussão, Conclusão</li>
+                            <li>Mapas finais + figuras</li>
+                        </ul>
+                    </li>
+                    <li><strong>Skill Dev Completo</strong> (2-3 semanas)
+                        <ul style="margin-top: 5px; margin-left: 20px;">
+                            <li>Implementação Python completa</li>
+                            <li>Testes integrados</li>
+                            <li>Documentação</li>
+                        </ul>
+                    </li>
+                    <li><strong>Apresentação</strong> (1 semana)
+                        <ul style="margin-top: 5px; margin-left: 20px;">
+                            <li>Slides finais</li>
+                            <li>Mapas apresentação</li>
+                            <li>Ensaio defesa</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <p style="margin-top: 20px;"><strong>Timeline Estimado:</strong> 6 semanas totais (até Dez 2026)</p>
+            </div>
+
+            <!-- Resultados Arquivos -->
+            <div class="section">
+                <h2>📁 Arquivos Salvos</h2>
+
+                <p><strong>Diretório:</strong> <code>TCC - Ipes - Inicio do zero/05 - Modelagem no R/</code></p>
+
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-top: 15px;">
+                    <ul style="margin-left: 20px; color: #2c3e50; line-height: 1.8;">
+                        <li><strong>R28_..._MODELOS_LOCAIS/</strong> — 6 modelos baseline</li>
+                        <li><strong>R30_..._GRADE_72/</strong> — 72 modelos exploração</li>
+                        <li><strong>R31_..._VALIDACAO_EXTERNA/</strong> — Validação 7 propriedades</li>
+                        <li><strong>Logs:</strong> <code>skill_logs_*.txt</code> — Detalhes execução</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <p>TCC Modelagem Ambiental de Ipês — UFRA 2026</p>
+                <p>Autor: Milton da Silva Tavares Neto</p>
+                <div class="timestamp">
+                    Relatório gerado: 2026-11-24 20:34:04
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

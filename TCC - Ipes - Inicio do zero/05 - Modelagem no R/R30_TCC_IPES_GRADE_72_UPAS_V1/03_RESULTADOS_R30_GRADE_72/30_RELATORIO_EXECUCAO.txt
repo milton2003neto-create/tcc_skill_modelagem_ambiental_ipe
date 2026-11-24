@@ -1,6 +1,6 @@
 TCC IPES | R30 GRADE LOCAL - 72 AVALIACOES
 Versao: R30_GRADE_72_UPAS_V1_20261118
-Data: 2026-11-24 20:14:11.051353
+Data: 2026-11-24 20:34:03.777838
 2 especies x 3 paineis R27 x 3 features (L,LQ,LQH) x 4 RM (1,2,3,4).
 6 checkpoints LQH/RM4 do R28 conferidos e reaproveitados.
 66 ajustes R30 novos; NAO foram reamostrados registros.

@@ -1,7 +1,7 @@
 
 R31 — VALIDACAO EXTERNA — RELATORIO
 Versao: R31_VALIDACAO_EXTERNA_V1_20261124
-Execucao: 20261124_201411
+Execucao: 20261124_203404
 
 RESULTADO: TRANSFERENCIA FALHA
 
@@ -26,4 +26,4 @@ Criterio sucesso:
 Interpretacao:
 Degradacao maior que esperado. Revisar preditores ou retrainar com 7 propriedades.
 
-Data geracao: 2026-11-24 20:14:11.824543
+Data geracao: 2026-11-24 20:34:04.658801
