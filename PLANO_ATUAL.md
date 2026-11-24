@@ -1,8 +1,8 @@
 # PLANO ATUAL — TCC Modelagem Ambiental de Ipês
 
-**Data Atualização:** 2026-11-24  
-**Status Geral:** 60% completo — Consolidação finalizada, R31 framework pronto, Skill definida  
-**Próxima Milestone:** Preencher R31 com dados 7 propriedades
+**Data Atualização:** 2026-11-24 (Final da Sessão)  
+**Status Geral:** 80% completo — Consolidação, R31 completo, Skill Python integrada  
+**Próxima Milestone:** Dissertação (4-6 semanas redação)
 
 ---
 
