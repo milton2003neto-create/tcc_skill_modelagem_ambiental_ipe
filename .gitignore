@@ -1,0 +1,23 @@
+# Arquivos grandes
+*.tif
+*.tif.aux.xml
+*.zip
+*.docx
+*.pdf
+*.png
+graphify-out/
+setup_tcc.ps1
+
+# Diretórios dados brutos
+TCC - Ipes - Inicio do zero/01 - Dados originais/
+TCC - Ipes - Inicio do zero/02 - Fontes ambientais/
+TCC - Ipes - Inicio do zero/03 - Trabalho no QGIS/
+TCC - Ipes - Inicio do zero/04 - Dados para o MaxEnt/
+TCC - Ipes - Inicio do zero/06 - Resultados/
+TCC - Ipes - Inicio do zero/07 - Anotacoes do TCC/
+
+# Cache
+.DS_Store
+*.pyc
+__pycache__/
+.Rhistory
