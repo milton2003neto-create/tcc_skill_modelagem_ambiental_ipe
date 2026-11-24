@@ -420,6 +420,23 @@ def main():
     # [7] Exportar
     log_path = skill.exportar_logs()
 
+    # [8] Gerar relatório HTML
+    try:
+        from gerar_relatorio_html import main as gerar_relatorio
+        relatorio_path = gerar_relatorio(
+            MODELOS_CANDIDATOS['roxo'],
+            MODELOS_CANDIDATOS['amarelo'],
+            True, True, True,
+            asdict(resultado) if resultado else None
+        )
+        print(f"Relatório: {relatorio_path}")
+
+        # Abrir no navegador
+        import webbrowser
+        webbrowser.open(f"file:///{relatorio_path}")
+    except Exception as e:
+        print(f"⚠️  Erro ao gerar relatório: {e}")
+
     print("\n" + "=" * 70)
     print("✓ SKILL COMPLETO")
     print("=" * 70)
