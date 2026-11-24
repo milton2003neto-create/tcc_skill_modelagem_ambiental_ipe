@@ -23,8 +23,8 @@ for (pacote in c('maxnet','ecospat')) {
     stop('Instale ',pacote,' com install.packages("',pacote,'")',call.=FALSE)
 }
 
-cat('  maxnet:', packageVersion('maxnet'), '\n')
-cat('  ecospat:', packageVersion('ecospat'), '\n')
+cat('  maxnet:', as.character(packageVersion('maxnet')), '\n')
+cat('  ecospat:', as.character(packageVersion('ecospat')), '\n')
 
 # =============================================================================
 # [2] DEFINIR PROPRIEDADES EXTERNAS
@@ -54,8 +54,8 @@ cat('-------\n')
 
 set.seed(20261124) # Reproducivel
 
-n_roxo_por_prop <- 25:35
-n_amarelo_por_prop <- 25:35
+n_roxo_por_prop <- sample(25:35, 7, replace=TRUE)
+n_amarelo_por_prop <- sample(25:35, 7, replace=TRUE)
 
 presencas_roxo <- data.frame(
   propriedade_id = rep(1:7, times=n_roxo_por_prop),

@@ -1,0 +1,9 @@
+R29 ETAPA 1 - BOYCE E P10 DOS 6 MODELOS R28
+Executado: 2026-11-18 15:00:53.044961
+AUC, P10 e omissao recalculados dos scores: conferidos com R28.
+Boyce original: ecospat nclass=0, rm.duplicate=TRUE, Spearman, fit=BG de validacao, obs=presencas de validacao.
+nclass=10 e rm.duplicate=FALSE: apenas sensibilidade, NAO outra selecao de modelo.
+Boyce reproduzidos: 6 de 6.
+Pendentes: 
+Boyce elevado com AUC baixa pode ocorrer; verificar curvas P/E e proporcao de BG acima P10.
+UPAs reservadas contiguas a areas de treino: diagnostico LOCAL, nao independencia regional.

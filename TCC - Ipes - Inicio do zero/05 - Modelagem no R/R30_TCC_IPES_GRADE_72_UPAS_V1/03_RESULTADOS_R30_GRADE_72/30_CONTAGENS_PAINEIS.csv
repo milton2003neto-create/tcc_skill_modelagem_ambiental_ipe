@@ -1,0 +1,7 @@
+"especie","cenario_id","n_UPAs_val","pres_treino","bg_treino","pres_val","bg_val"
+"Ipe-roxo","LOCAL_UPAS_01",3,2854,9531,394,469
+"Ipe-amarelo","LOCAL_UPAS_01",4,5047,9319,385,681
+"Ipe-roxo","LOCAL_UPAS_02",3,2849,9516,399,484
+"Ipe-amarelo","LOCAL_UPAS_02",3,5049,9583,383,417
+"Ipe-roxo","LOCAL_UPAS_03",2,2860,9576,388,424
+"Ipe-amarelo","LOCAL_UPAS_03",4,5047,9387,385,613

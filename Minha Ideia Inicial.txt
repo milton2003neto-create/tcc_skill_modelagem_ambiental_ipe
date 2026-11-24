@@ -1,0 +1,104 @@
+PAI, PRECISO DA SUA AJUDA PARA DAR CONTINUIDADE AO MEU TCC
+
+Estou te enviando um documento chamado MANUAL_CIENTIFICO_TCC_IPES_R01_R30_2026.docx e outros documentos. Quero explicar com calma o que é esse trabalho, o que já foi realizado e o que ainda precisamos fazer, para que você consiga me ajudar utilizando o Claude.
+
+O meu TCC é um trabalho de Engenharia Florestal da UFRA. A pesquisa busca compreender quais condições ambientais estão associadas à ocorrência de duas espécies de ipê no Pará: o ipê-roxo (Handroanthus impetiginosus) e o ipê-amarelo (Handroanthus serratifolius).
+
+A ideia é utilizar os dados de inventários florestais de áreas sob manejo, juntamente com informações ambientais como altitude, declividade, distância de rios, precipitação e tipo de solo, para construir modelos que identifiquem as condições ambientais associadas à presença dessas espécies.
+
+Para isso, utilizamos um método chamado MaxEnt, executado por meio da linguagem R. Não é necessário que você saiba programar ou entenda profundamente esse método. O Claude poderá nos ajudar nessa parte, desde que trabalhemos com organização, cuidado e seguindo as instruções do manual.
+
+O QUE JÁ FOI FEITO
+
+Antes de chegar à etapa atual, foi desenvolvido um trabalho bastante extenso.
+
+Primeiramente, os dados dos inventários florestais foram organizados e tratados. Também foram trabalhadas as informações geográficas no QGIS, que é o programa utilizado para visualizar mapas, propriedades, áreas de manejo, coordenadas das árvores e informações ambientais.
+
+Foram preparados os dados das árvores, delimitadas as áreas que realmente possuem inventários e organizadas as informações ambientais que seriam utilizadas na pesquisa. Entre essas informações estão altitude, declividade, distância dos rios, precipitação e textura do solo.
+
+Depois disso, foram realizadas diversas análises no R. Não foi apenas um modelo que rodamos: foram feitos vários testes, comparações, ajustes e auditorias, identificados no histórico como R01 até R30.
+
+Esses testes serviram para verificar como os modelos se comportavam, como as configurações influenciavam os resultados, se as previsões funcionavam em diferentes regiões, se os modelos estavam muito complexos e se conseguiam representar adequadamente os ambientes em que as espécies foram encontradas.
+
+Também foram investigadas situações em que o modelo apresentava bons resultados em algumas regiões, mas falhava em outras. Isso é importante porque não queremos simplesmente escolher um resultado bonito ou um número alto. Queremos entender se o modelo realmente tem consistência e se os resultados podem ser defendidos cientificamente.
+
+Por isso, o manual que estou enviando é muito importante. Ele contém o histórico do trabalho, os resultados encontrados, as decisões que já foram tomadas, as limitações identificadas e o planejamento do que falta.
+
+O QUE É IMPORTANTE ENTENDER SOBRE O TRABALHO
+
+Nosso objetivo não é simplesmente fazer um mapa colorido mostrando onde os ipês poderiam existir.
+
+Precisamos descobrir quais variáveis ambientais estão mais associadas aos registros das espécies, entender como essas associações se comportam e verificar se os modelos conseguem funcionar quando aplicados a áreas que não participaram do treinamento.
+
+O trabalho também precisa reconhecer quando o modelo não funciona bem. Se ele apresentar limitações, isso não significa necessariamente que a pesquisa deu errado. Essas limitações também são resultados científicos e precisam ser compreendidas, explicadas e apresentadas corretamente.
+
+Não podemos afirmar, por exemplo, que determinada variável causa a presença de uma espécie apenas porque o modelo atribuiu importância a ela. O que podemos investigar são associações, padrões ambientais e a capacidade de previsão dentro das condições estudadas.
+
+O QUE AINDA PRECISAMOS FAZER
+
+Agora estamos em uma fase de finalização e consolidação. Não precisamos começar tudo novamente, porque já existe uma grande quantidade de trabalho feito.
+
+A próxima etapa é organizar e comparar os resultados que já foram produzidos, principalmente para entender o comportamento dos modelos nas diferentes formas de avaliação.
+
+Precisamos verificar quais configurações apresentam resultados mais consistentes, considerando não apenas as métricas, mas também as falhas, a omissão de ocorrências, a complexidade dos modelos e a capacidade de transferir suas previsões entre diferentes áreas.
+
+Também precisamos avançar na análise das variáveis ambientais. Isso significa descobrir como cada variável contribui para os modelos, verificar se existem variáveis que carregam informações muito semelhantes e produzir gráficos que ajudem a entender como os modelos respondem às mudanças nas condições ambientais.
+
+Essa parte é fundamental porque um dos objetivos do TCC é justamente identificar as variáveis ambientais associadas à ocorrência das duas espécies e comparar esses padrões entre o ipê-roxo e o ipê-amarelo.
+
+Depois que essas análises forem concluídas, precisamos definir quais modelos serão utilizados na etapa final. Essa decisão deve ser feita utilizando os resultados do desenvolvimento, sem olhar antecipadamente o desempenho das áreas que foram reservadas para o teste final.
+
+Existe também uma etapa de validação externa, que é uma das partes mais importantes do trabalho. Foram reservadas sete propriedades que não devem ser utilizadas para escolher ou ajustar os modelos. Elas servirão para verificar se aquilo que foi aprendido com as áreas de desenvolvimento consegue ser aplicado a áreas independentes.
+
+Essas sete propriedades são:
+
+- Barro Branco;
+- Curuça;
+- Guariúba;
+- Jatobá;
+- Lote 01;
+- Marilia;
+- Palmeira.
+
+Mas é bom verificar se essas 7 são realmente boas para usa como verificadoras, assim como as que vão ser usadas pra o teste e desenvolvimento dos modelos, pq temos um problema na especialização dos dados. Somente depois de concluirmos as análises de desenvolvimento, decidirmos os modelos e registrarmos os parâmetros, devemos realizar essa avaliação externa.
+
+Essa ordem precisa ser respeitada para que o teste seja realmente independente. Não podemos utilizar os resultados dessas sete propriedades para mudar o modelo e depois dizer que elas serviram como uma validação independente.
+
+COMO QUERO QUE VOCÊ UTILIZE O CLAUDE
+
+O Claude será nosso assistente para ajudar a executar as etapas técnicas. Ele poderá ler os arquivos, analisar scripts, verificar tabelas, executar códigos no R, organizar resultados e produzir relatórios.
+
+Mas precisamos trabalhar com ele de maneira controlada.
+
+Primeiro, envie o manual completo e peça que ele leia tudo antes de executar qualquer coisa. Ele precisa entender o histórico do projeto, os experimentos que já foram realizados e as decisões metodológicas.
+
+Depois, precisamos disponibilizar os arquivos do projeto que forem necessários, como scripts do R, tabelas de resultados, dados de auditoria, arquivos de configuração e demais produtos. Não é necessário enviar tudo de uma vez sem organização. Podemos disponibilizar os arquivos conforme cada etapa exigir.
+
+Quero que o Claude sempre confira os arquivos reais antes de fazer afirmações. Se ele disser que determinada análise já existe, deve identificar o arquivo ou resultado que comprova isso. Se não encontrar alguma informação, deve informar que não encontrou, em vez de inventar ou presumir.
+
+Ele não deve apagar, substituir ou modificar os dados originais. Sempre que precisar trabalhar em um script ou arquivo, deve preservar o original e criar uma cópia de trabalho, identificando o que foi alterado.
+
+Também não quero que ele saia executando dezenas de análises de uma vez. O correto é trabalhar por etapas: entender, planejar, executar, conferir e documentar.
+
+A cada etapa, ele deve nos explicar em linguagem simples o que está fazendo, por que aquilo é necessário, o que os resultados significam e se existe algum problema que precisamos resolver.
+
+COMO VOCÊ DEVE CONDUZIR O TRABALHO
+
+Não precisa tentar entender tudo sobre modelagem ambiental, estatística ou programação antes de começar. Podemos utilizar o Claude para auxiliar nessas partes.
+
+O mais importante é que você siga o manual, acompanhe as tarefas, confira os arquivos e não deixe que o Claude se afaste do objetivo do TCC.
+
+Sempre que ele apresentar um resultado, procure entender:
+
+- O que foi analisado?
+- Por que essa análise foi feita?
+- O que o resultado mostrou?
+- Esse resultado é realmente confiável?
+- Ele está de acordo com o que já foi realizado?
+- Qual é o próximo passo?
+
+Se algo parecer confuso, peça que o Claude explique de forma mais simples antes de continuar.
+
+Não precisamos inventar novas etapas, refazer todo o trabalho ou buscar resultados melhores a qualquer custo. Precisamos terminar o TCC com um trabalho organizado, metodologicamente correto, transparente e que possamos explicar e defender diante da banca.
+
+O manual será nosso guia. O Claude será a ferramenta de apoio. E o trabalho deve ser realizado com calma, seguindo cada etapa e verificando tudo antes de avançar.

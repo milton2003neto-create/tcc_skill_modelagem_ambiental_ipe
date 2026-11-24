@@ -1,0 +1,19 @@
+TCC IPES | R29 PARTE 3 - REFERENCIA ALEATORIA 50/50
+Protocolo: R29_03_ALEATORIO_50_50_B2_V1_20261118
+Executado: 2026-11-18 15:42:46.684538
+Duas especies; 2 modelos novos. Particao R27 50/50 congelada.
+Treino e validacao podem compartilhar as MESMAS UPAs.
+ISSO NAO E VALIDACAO ESPACIAL INDEPENDENTE.
+MaxEnt maxnet / LQH / RM4 / 6 preditores; textura fator.
+Background B2 da area inventariada de desenvolvimento, sorteio R27.
+AUC e Boyce: presencas versus background (NAO ausencia confirmada).
+Boyce com nclass 0 (protocolo R28) e 10 (sensibilidade).
+P10 derivado SOMENTE dos scores de presencas no treinamento.
+NENHUMA propriedade do teste externo e usada.
+Nao comparar metricas com paineis R28 como validacao da mesma escala.
+Amostragem aleatoria espacialmente dependente pode ser otimista.
+Nao selecionar modelo final pelo 50/50.
+
+METRICAS:
+Ipe-roxo | AUC 0.871 | AUC intra-prop 0.587 | omissao 9.83% | Boyce 0.822 | Boyce10 0.400
+Ipe-amarelo | AUC 0.801 | AUC intra-prop 0.579 | omissao 9.94% | Boyce 0.999 | Boyce10 1.000

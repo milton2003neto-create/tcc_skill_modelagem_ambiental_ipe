@@ -1,0 +1,25 @@
+TCC IPES | R28 - SEIS MODELOS LOCAIS POR UPA
+Protocolo: R28_UPAS_B2_LQH_RM4_V1_1_20261118
+Executado: 2026-11-18 15:00:25.27095
+6 ajustes NOVOS: 2 especies x 3 paineis locais do R27.
+LQH, RM4, maxnet addsamplestobackground=TRUE, seis preditores.
+Textura subgrupo: fator 2,3,4,6,7. Previsao cloglog/clamping TRUE.
+Limiar P10: percentil 10 dos scores de presencas de TREINO.
+AUC e Boyce: presencas versus background B2 de VALIDACAO.
+AUC intra-propriedade ponderada por pares presenca-background.
+UPAs reservadas integralmente; UPAs contiguas -> validacao LOCAL,
+NAO validacao regional independente. Nenhum modelo final escolhido.
+Os seis modelos antigos R19 NAO foram reutilizados nesta particao.
+Os folds antigos, as 7 propriedades de teste e os dados originais
+continuam INALTERADOS e FORA deste protocolo.
+Nao comparar AUC dos novos paineis e antigos folds como se testassem
+a mesma populacao ambiental/amostragem.
+Resultados exploratorios: analisar cada UPA/propriedade e pior painel.
+
+RESUMO POR MODELO:
+R28_ROXO_LOCAL_UPAS_01_LQH_RM4 | AUC 0.557 | intra-prop 0.577 | omissao 0.3% | Boyce 0.842
+R28_AMARELO_LOCAL_UPAS_01_LQH_RM4 | AUC 0.678 | intra-prop 0.553 | omissao 5.2% | Boyce 0.890
+R28_ROXO_LOCAL_UPAS_02_LQH_RM4 | AUC 0.376 | intra-prop 0.532 | omissao 1.0% | Boyce 0.673
+R28_AMARELO_LOCAL_UPAS_02_LQH_RM4 | AUC 0.642 | intra-prop 0.581 | omissao 1.0% | Boyce 0.897
+R28_ROXO_LOCAL_UPAS_03_LQH_RM4 | AUC 0.470 | intra-prop 0.510 | omissao 0.0% | Boyce 0.735
+R28_AMARELO_LOCAL_UPAS_03_LQH_RM4 | AUC 0.681 | intra-prop 0.594 | omissao 15.1% | Boyce 0.934

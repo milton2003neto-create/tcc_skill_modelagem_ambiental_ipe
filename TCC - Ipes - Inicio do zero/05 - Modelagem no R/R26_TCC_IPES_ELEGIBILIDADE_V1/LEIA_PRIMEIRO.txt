@@ -1,0 +1,20 @@
+R26 - ELIGIBILIDADE DAS UPAS - V1
+
+COMO USAR (SEM ESCOLHER PASTAS)
+1. Descompacte o ZIP inteiro em uma pasta do seu computador. Mantenha a subpasta 01_ENTRADAS_COPIAS.
+2. Abra R26_ELEGIBILIDADE_UPAS_V1.R no RStudio.
+3. Clique em Source (executar o arquivo inteiro). O script identifica as copias de entrada ao lado do .R.
+4. Se seu RStudio não localizar o script automaticamente, ele solicitará selecionar o arquivo 05_PRESENCAS_UM_POR_PIXEL_30M.csv dentro da subpasta 01_ENTRADAS_COPIAS.
+5. Cria uma NOVA pasta 03_RESULTADOS_R_EXECUCAO_<datahora>. Não altera os originais ou o R19/R25.
+
+PRATICO: A subpasta 02_RESULTADOS_PRECALCULADOS ja contem a matriz R26 obtida das fontes enviadas. Pode olhar os resultados antes mesmo de executar no RStudio.
+
+ENTRADAS ENCAPSULADAS (COPIAS COM MD5 DOCUMENTADO):
+- 05_PRESENCAS_UM_POR_PIXEL_30M.csv (R05)
+- 18_BACKGROUND_B2_10000_COM_FOLDS.csv (R18)
+- 24_QA_64_UPAS.csv (R24)
+- 24_PARES_UPAS_GEOMETRICOS.csv (R24)
+
+NAO UTILIZA: outras propriedades de teste, redivisao de folds, novas pseudoausencias, novos modelos.
+
+IMPORTANTE: R26 so diz onde ha dados suficientes para TESTAR uma divisao por UPA. Ainda falta definir criterios espaciais no R27.

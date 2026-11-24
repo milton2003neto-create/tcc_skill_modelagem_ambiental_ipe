@@ -1,0 +1,32 @@
+[2026-11-24T19:35:34.854556] INFO: Verificando ambiente...
+[2026-11-24T19:35:34.854674] INFO: Python 3.13.15: OK
+[2026-11-24T19:35:35.103788] INFO: R instalado: OK
+[2026-11-24T19:35:35.104613] INFO: Diretórios projeto: OK
+[2026-11-24T19:35:35.104763] INFO: Verificação ambiente: ✓ OK
+[2026-11-24T19:35:35.104847] INFO: Modelos candidatos: 2
+[2026-11-24T19:35:35.105387] INFO:   ROXO: R28_ROXO_LOCAL_UPAS_01_LQH_RM4 (AUC 0.5566, Boyce 0.842)
+[2026-11-24T19:35:35.105473] INFO:   AMARELO: R28_AMARELO_LOCAL_UPAS_03_LQH_RM4 (AUC 0.6813, Boyce 0.934)
+[2026-11-24T19:35:35.105550] INFO: Preparando R31...
+[2026-11-24T19:35:35.107151] INFO: R31 estrutura pronta: C:\Users\jotac\Downloads\TCC MILTON\TCC - Ipes - Inicio do zero\05 - Modelagem no R\R31_TCC_IPES_VALIDACAO_EXTERNA_V1
+[2026-11-24T19:35:35.107307] INFO: ======================================================================
+[2026-11-24T19:35:35.107371] INFO: WORKFLOW COMPLETO: R28 -> R30 -> R31
+[2026-11-24T19:35:35.107487] INFO: ======================================================================
+[2026-11-24T19:35:35.107565] INFO: 
+[ETAPA] R28 (6 modelos)...
+[2026-11-24T19:35:35.107687] INFO: Executando R28...
+[2026-11-24T19:35:35.107990] INFO: R28 já executado: C:\Users\jotac\Downloads\TCC MILTON\TCC - Ipes - Inicio do zero\05 - Modelagem no R\R28_TCC_IPES_6_MODELOS_LOCAIS_V1_1_CORRIGIDO\03_RESULTADOS_R28_V1_1
+[2026-11-24T19:35:35.108094] INFO: ✓ R28 (6 modelos) OK
+[2026-11-24T19:35:35.108164] INFO: 
+[ETAPA] R30 (72 modelos)...
+[2026-11-24T19:35:35.108285] INFO: Executando R30...
+[2026-11-24T19:35:36.743061] ERROR: R30 erro: Error: Instale maxnet com install.packages("maxnet")
+Execution halted
+
+[2026-11-24T19:35:36.743239] ERROR: ✗ R30 (72 modelos) FALHOU
+[2026-11-24T19:35:36.743302] INFO: 
+======================================================================
+[2026-11-24T19:35:36.743395] INFO: ✗ WORKFLOW FALHOU
+[2026-11-24T19:35:36.743450] INFO: ======================================================================
+[2026-11-24T19:35:36.743612] INFO: Executando R31 simulação...
+[2026-11-24T19:35:36.747677] INFO: R31 completo: transferência FALHA
+[2026-11-24T19:35:36.747785] INFO: Gerando sumário workflow...

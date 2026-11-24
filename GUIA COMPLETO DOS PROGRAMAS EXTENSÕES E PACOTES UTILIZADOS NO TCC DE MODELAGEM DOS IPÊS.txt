@@ -1,0 +1,544 @@
+GUIA COMPLETO DOS PROGRAMAS, EXTENSÕES E PACOTES UTILIZADOS NO TCC DE MODELAGEM DOS IPÊS
+
+Este material apresenta os programas necessários para continuar o TCC de Engenharia Florestal, que trabalha com a modelagem ambiental preditiva de ipê-roxo (Handroanthus impetiginosus) e ipê-amarelo (Handroanthus serratifolius) no Pará.
+
+O objetivo é explicar a função de cada programa, suas ferramentas internas, extensões, pacotes e como instalar cada componente. A ideia é permitir que outra pessoa consiga preparar o computador e trabalhar no projeto utilizando também o Claude como assistente.
+
+━━━━━━━━━━━━━━━━━━
+1. QGIS — GEOPROCESSAMENTO
+━━━━━━━━━━━━━━━━━━
+
+O que é?
+
+O QGIS é um programa gratuito de Sistema de Informação Geográfica (SIG). É utilizado para trabalhar com mapas, imagens de satélite, coordenadas, rios, limites de propriedades, UPAs e dados ambientais.
+
+O que fazemos nele no TCC?
+
+- Abrir os pontos das árvores inventariadas.
+- Visualizar os limites das propriedades e UPAs.
+- Conferir os sistemas de coordenadas SIRGAS 2000 / UTM 21S e 22S.
+- Trabalhar com os rasters de altitude e declividade do ANADEM.
+- Trabalhar com dados climáticos CHELSA.
+- Trabalhar com a classificação textural do solo do MapBiomas.
+- Processar a hidrografia.
+- Gerar a distância de cada pixel até os rios.
+- Extrair informações ambientais para os pontos de ocorrência.
+- Conferir geometrias e produzir mapas.
+
+Download:
+https://qgis.org/download/
+
+Como instalar:
+
+1. Entrar no site.
+2. Baixar o QGIS para Windows.
+3. Preferir a versão LTR, que é a versão de suporte de longo prazo.
+4. Executar o instalador.
+5. Manter as opções padrão.
+
+1.1. EXTENSÕES E FERRAMENTAS DO QGIS
+
+O QGIS possui ferramentas chamadas plugins ou complementos. Algumas já vêm junto com o programa e outras precisam ser instaladas separadamente.
+
+As principais ferramentas nativas relevantes para o nosso projeto são:
+
+A) Processing (Processamento)
+
+É uma das ferramentas mais importantes do QGIS. Ela reúne algoritmos de geoprocessamento, como recorte, reprojeção, cálculo de distância, conversão de dados, estatísticas de raster e operações com vetores.
+
+Foi utilizada como estrutura para acessar as ferramentas de processamento espacial.
+
+Como ativar:
+
+1. Abrir o QGIS.
+2. Ir em Complementos.
+3. Clicar em Gerenciar e Instalar Complementos.
+4. Procurar Processing.
+5. Verificar se está ativado.
+
+Normalmente já vem disponível na instalação.
+
+B) GDAL
+
+GDAL é uma biblioteca de geoprocessamento integrada ao QGIS. Não é um plugin independente comum.
+
+Serve para:
+
+- Processar imagens raster.
+- Converter formatos.
+- Reprojetar arquivos.
+- Recortar rasters.
+- Calcular proximidade e distância.
+- Trabalhar com modelos digitais de elevação.
+
+No nosso TCC, foi importante para o processamento dos rasters e para a variável de distância à hidrografia.
+
+O provedor GDAL costuma vir configurado no QGIS. Não é necessário baixar um plugin chamado GDAL separadamente.
+
+C) GRASS GIS / GRASS Processing Provider
+
+É uma integração com o sistema GRASS GIS, que oferece ferramentas avançadas de análise espacial.
+
+Pode trabalhar com:
+
+- Rasters.
+- Hidrografia.
+- Modelos de elevação.
+- Análise de terreno.
+- Processamento de dados vetoriais.
+
+É uma ferramenta complementar. Não deve ser confundida com GDAL.
+
+Para habilitar:
+
+1. Abrir o gerenciador de complementos.
+2. Procurar GRASS.
+3. Verificar se está habilitado.
+4. Conferir em Processamento > Opções > Provedores se o provedor está configurado.
+
+A instalação/configuração do GRASS pode exigir componentes adicionais, dependendo da versão do QGIS.
+
+D) Geometry Checker
+
+Ferramenta para identificar problemas em geometrias vetoriais, como polígonos inválidos, autointerseções e outros erros.
+
+É útil para conferir os limites das propriedades e UPAs.
+
+Como ativar:
+Complementos > Gerenciar e Instalar Complementos > Geometry Checker.
+
+E) Topology Checker
+
+Permite verificar problemas topológicos entre camadas, como sobreposições, lacunas e geometrias que não respeitam determinadas regras.
+
+É útil na conferência das áreas de estudo.
+
+Como ativar:
+Complementos > Gerenciar e Instalar Complementos > Topology Checker.
+
+F) Georeferencer GDAL
+
+Ferramenta para georreferenciar imagens, mapas escaneados e outros arquivos sem referência espacial adequada.
+
+Não é uma etapa central da modelagem atual, mas é uma ferramenta disponível no QGIS.
+
+G) DB Manager
+
+Permite administrar bancos de dados espaciais, consultar tabelas e executar comandos SQL.
+
+Pode ser útil para trabalhar com bancos GeoPackage e outros formatos compatíveis.
+
+H) GPS Tools
+
+Permite importar e trabalhar com dados de GPS.
+
+É útil quando se trabalha com levantamentos de campo e coordenadas coletadas em equipamentos GPS.
+
+Observação sobre o QGIS:
+
+Processing, GDAL, GRASS, Geometry Checker e Topology Checker não são todos plugins externos. Alguns são complementos nativos e outros são provedores de processamento. A existência no QGIS não significa que todos foram utilizados no TCC.
+
+Plugins externos que não estão confirmados como utilizados:
+
+- QuickMapServices: adiciona serviços de mapas de referência.
+- Profile Tool: gera perfis de elevação.
+- qgis2web: exporta mapas interativos para páginas web.
+
+Não são necessários para executar os modelos atuais.
+
+━━━━━━━━━━━━━━━━━━
+2. R — PROGRAMAÇÃO E ESTATÍSTICA
+━━━━━━━━━━━━━━━━━━
+
+O que é?
+
+R é uma linguagem de programação e ambiente de computação estatística. É onde realizamos as análises quantitativas e a modelagem ambiental.
+
+O que fazemos no TCC?
+
+- Organizar os dados das árvores.
+- Filtrar indivíduos com DAP acima de 10 cm.
+- Organizar ocorrências por espécie, propriedade e UPA.
+- Preparar os dados ambientais.
+- Criar e avaliar conjuntos de treinamento e validação.
+- Gerar pontos de background.
+- Calcular correlações entre variáveis.
+- Ajustar os modelos MaxEnt.
+- Calcular métricas de desempenho.
+- Gerar tabelas e gráficos.
+- Avaliar as respostas ambientais das espécies.
+
+Download:
+https://cran.r-project.org/
+
+Como instalar:
+
+1. Acessar o CRAN.
+2. Entrar em Download R for Windows.
+3. Baixar o instalador.
+4. Executar e aceitar as configurações padrão.
+
+2.1. PACOTES DO R
+
+No R, as extensões são chamadas de pacotes. Cada pacote acrescenta funções específicas ao programa.
+
+Os pacotes confirmados no histórico do nosso projeto são:
+
+A) maxnet — versão 0.1.4
+
+É o pacote central da modelagem.
+
+Função:
+
+- Ajustar modelos de distribuição de espécies usando a abordagem MaxEnt.
+- Trabalhar com variáveis ambientais.
+- Ajustar classes de feições.
+- Controlar a regularização.
+- Gerar predições de adequabilidade ambiental.
+
+Foi utilizado nos modelos R28.
+
+Instalação:
+
+install.packages("maxnet")
+
+B) ecospat — versão 4.1.4
+
+Pacote de ecologia espacial.
+
+É utilizado para análises ecológicas e ferramentas de avaliação de modelos, incluindo o índice de Boyce.
+
+Instalação:
+
+install.packages("ecospat")
+
+2.2. PACOTES DE SUPORTE IMPORTANTES
+
+Os seguintes pacotes são relevantes para os tipos de processamento realizados e para a estrutura dos scripts. É necessário conferir quais estão efetivamente instalados e quais são chamados diretamente pelos arquivos R.
+
+C) terra
+
+Trabalha com dados raster, como altitude, declividade, clima e solo.
+
+Instalação:
+install.packages("terra")
+
+D) sf
+
+Trabalha com dados vetoriais e geometrias espaciais, como pontos, rios, propriedades e UPAs.
+
+Instalação:
+install.packages("sf")
+
+E) dplyr
+
+Organiza e manipula tabelas, filtra registros e agrupa informações.
+
+Instalação:
+install.packages("dplyr")
+
+F) readr
+
+Lê e grava arquivos CSV.
+
+Instalação:
+install.packages("readr")
+
+G) ggplot2
+
+Cria gráficos científicos, como gráficos de distribuição, comparação de variáveis e resultados dos modelos.
+
+Instalação:
+install.packages("ggplot2")
+
+H) glmnet
+
+Biblioteca de modelagem estatística que é dependência importante do maxnet.
+
+Instalação:
+install.packages("glmnet")
+
+I) dismo
+
+Pacote de modelagem de distribuição de espécies, com ferramentas para MaxEnt e outros métodos.
+
+É importante distinguir: o nosso fluxo R28 utiliza maxnet; dismo não deve ser tratado automaticamente como o mecanismo de ajuste desses modelos.
+
+Instalação:
+install.packages("dismo")
+
+J) vegan
+
+Pacote de análises ecológicas e multivariadas.
+
+Instalação:
+install.packages("vegan")
+
+K) PresenceAbsence
+
+Pacote com funções para avaliação de modelos de presença e ausência.
+
+Instalação:
+install.packages("PresenceAbsence")
+
+Importante: esses pacotes de suporte não devem ser considerados todos comprovadamente utilizados só porque são relevantes. O Claude deve conferir os scripts e identificar quais são realmente necessários.
+
+2.3. COMO INSTALAR OS PACOTES DO R
+
+Abrir o RStudio, localizar o Console e executar:
+
+install.packages(c(
+"maxnet",
+"ecospat",
+"terra",
+"sf",
+"dplyr",
+"readr",
+"ggplot2",
+"glmnet",
+"dismo",
+"vegan",
+"PresenceAbsence"
+))
+
+O R instala os pacotes e suas dependências.
+
+Para conferir a instalação:
+
+packageVersion("maxnet")
+packageVersion("ecospat")
+
+Para verificar todos de uma vez:
+
+pacotes <- c(
+"maxnet", "ecospat", "terra", "sf",
+"dplyr", "readr", "ggplot2", "glmnet",
+"dismo", "vegan", "PresenceAbsence"
+)
+
+data.frame(
+pacote = pacotes,
+instalado = vapply(
+pacotes,
+requireNamespace,
+logical(1),
+quietly = TRUE
+)
+)
+
+━━━━━━━━━━━━━━━━━━
+3. RSTUDIO — AMBIENTE DE PROGRAMAÇÃO
+━━━━━━━━━━━━━━━━━━
+
+O que é?
+
+RStudio é o programa que utilizamos para escrever, organizar e executar os códigos do R.
+
+O R é o motor de processamento; o RStudio é o ambiente visual onde trabalhamos com ele.
+
+Funções no TCC:
+
+- Abrir scripts .R.
+- Executar códigos.
+- Acompanhar erros.
+- Visualizar gráficos.
+- Consultar tabelas.
+- Organizar projetos.
+- Instalar e carregar pacotes.
+- Executar as rotinas de modelagem.
+
+Download:
+https://posit.co/downloads/
+
+Como instalar:
+
+1. Instalar primeiro o R.
+2. Entrar no site da Posit.
+3. Baixar RStudio Desktop gratuito.
+4. Executar o instalador.
+5. Abrir o RStudio e verificar se reconheceu o R instalado.
+
+Ferramentas internas importantes do RStudio:
+
+- Console: executa comandos R.
+- Source: editor dos scripts.
+- Environment: mostra os objetos carregados.
+- Files: mostra os arquivos e pastas.
+- Plots: mostra gráficos.
+- Packages: permite instalar e consultar pacotes.
+- Help: consulta a documentação das funções.
+
+O RStudio não precisa de plugins externos para executar os nossos scripts. Os recursos principais já vêm no próprio programa.
+
+━━━━━━━━━━━━━━━━━━
+4. MAXENT — MODELAGEM DE DISTRIBUIÇÃO
+━━━━━━━━━━━━━━━━━━
+
+O que é?
+
+MaxEnt é um método de modelagem ambiental utilizado para estimar a adequabilidade ambiental de espécies a partir de registros de ocorrência e variáveis ambientais.
+
+No TCC, é utilizado para modelar separadamente:
+
+- Ipê-roxo.
+- Ipê-amarelo.
+
+Existem implementações diferentes:
+
+A) maxnet
+
+É a implementação utilizada nos nossos scripts R28. É instalada dentro do R.
+
+Instalação:
+install.packages("maxnet")
+
+B) MaxEnt Java
+
+É uma implementação independente, executada por Java.
+
+Site:
+https://biodiversityinformatics.amnh.org/open_source/maxent/
+
+Ela não deve ser confundida com o pacote maxnet.
+
+Para executar os nossos modelos R28, não é necessário instalar o MaxEnt Java, pois utilizamos maxnet.
+
+━━━━━━━━━━━━━━━━━━
+5. PYTHON E GDAL
+━━━━━━━━━━━━━━━━━━
+
+Python
+
+É uma linguagem de programação utilizada em geoprocessamento, automação e análise de dados.
+
+O QGIS possui um ambiente Python integrado, utilizado por diversas ferramentas internas.
+
+No nosso fluxo, o Console Python do QGIS permite executar comandos e automatizar tarefas.
+
+Não temos confirmação de que uma instalação independente do Python seja uma dependência obrigatória dos scripts atuais.
+
+GDAL
+
+É uma biblioteca de geoprocessamento utilizada para trabalhar com arquivos raster e vetoriais.
+
+No QGIS, disponibiliza diversos algoritmos de processamento.
+
+Exemplos de operações:
+
+- Reprojeção.
+- Recorte de rasters.
+- Conversão de arquivos.
+- Cálculo de proximidade.
+- Manipulação de imagens geográficas.
+
+Não é necessário instalar um plugin GDAL separado quando o QGIS já fornece essa biblioteca.
+
+━━━━━━━━━━━━━━━━━━
+6. EXCEL E PLANILHAS
+━━━━━━━━━━━━━━━━━━
+
+Microsoft Excel
+
+Utilizado para visualizar, conferir e organizar planilhas de inventário e resultados.
+
+Arquivos importantes:
+
+- XLSX.
+- CSV.
+
+Download:
+https://www.microsoft.com/microsoft-365/excel
+
+Não exige plugins especiais para a modelagem.
+
+━━━━━━━━━━━━━━━━━━
+7. BASES AMBIENTAIS UTILIZADAS
+━━━━━━━━━━━━━━━━━━
+
+Essas não são extensões de programas, mas fontes de dados utilizadas para construir as variáveis ambientais.
+
+ANADEM
+Fornece o modelo digital de elevação utilizado para gerar altitude e declividade.
+
+CHELSA
+Fornece dados climáticos utilizados para obter BIO12 e BIO17.
+
+https://chelsa-climate.org/
+
+MapBiomas Solo
+Fornece a classificação textural do solo utilizada no projeto.
+
+https://brasil.mapbiomas.org/
+
+Hidrografia
+Camadas vetoriais de rios e igarapés utilizadas para calcular a distância até a drenagem.
+
+Limites das propriedades e UPAs
+Definem as áreas de organização, inventário e análise espacial.
+
+━━━━━━━━━━━━━━━━━━
+8. COMO O CLAUDE DEVE TRABALHAR COM O PROJETO
+━━━━━━━━━━━━━━━━━━
+
+O Claude será utilizado como assistente para analisar arquivos, revisar scripts, identificar dependências e auxiliar na continuidade do processamento.
+
+É importante que ele não saia instalando ferramentas desnecessárias nem altere os dados originais.
+
+Orientações:
+
+1. Primeiro, verificar todos os programas instalados.
+2. Identificar a versão de cada programa.
+3. Conferir todos os plugins do QGIS.
+4. Conferir todos os pacotes instalados no R.
+5. Examinar os scripts R para identificar os pacotes realmente utilizados.
+6. Separar dependências obrigatórias de ferramentas opcionais.
+7. Verificar se o ambiente consegue executar os scripts sem erros.
+8. Não substituir arquivos originais.
+9. Não alterar a metodologia do TCC sem justificativa.
+10. Criar um relatório com tudo que foi encontrado e o que ainda precisa ser instalado.
+
+O projeto trabalha com seis variáveis ambientais: altitude, declividade, distância aos rios, BIO12, BIO17 e subgrupo textural do solo.
+
+O modelo utiliza ocorrências de ipê-roxo e ipê-amarelo e o pacote maxnet.
+
+━━━━━━━━━━━━━━━━━━
+9. RELATÓRIO DE AMBIENTE QUE DEVE SER PRODUZIDO
+━━━━━━━━━━━━━━━━━━
+
+Ao terminar a conferência, deverá existir uma tabela com:
+
+- Nome do programa.
+- Versão instalada.
+- Finalidade.
+- Extensões e plugins.
+- Versões dos plugins.
+- Pacotes R instalados.
+- Versões dos pacotes.
+- Dependências faltantes.
+- Programas que precisam ser instalados.
+- Ferramentas que são opcionais.
+- Teste de funcionamento.
+
+A ideia é deixar o computador preparado para reproduzir o processamento do TCC, com todas as ferramentas documentadas.
+
+Links principais:
+
+QGIS: https://qgis.org/download/
+
+R: https://cran.r-project.org/
+
+RStudio: https://posit.co/downloads/
+
+MaxEnt: https://biodiversityinformatics.amnh.org/open_source/maxent/
+
+CHELSA: https://chelsa-climate.org/
+
+MapBiomas: https://brasil.mapbiomas.org/
+
+Documentação QGIS: https://docs.qgis.org/
+
+Documentação R: https://cran.r-project.org/manuals.html
+
+Documentação RStudio: https://docs.posit.co/
+
+FIM DO GUIA.

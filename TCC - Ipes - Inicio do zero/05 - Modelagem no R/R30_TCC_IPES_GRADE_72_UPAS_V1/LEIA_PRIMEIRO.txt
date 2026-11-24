@@ -1,0 +1,48 @@
+TCC IPES | R30 V1 - GRADE DE 72 AVALIACOES LOCAIS MAXENT
+======================================================
+
+EXECUTE APENAS UM SCRIPT:
+  R30_EXECUTAR_GRADE_72_UPAS.R
+
+COMO EXECUTAR NO RSTUDIO
+1) Extraia o ZIP inteiro na pasta "05 - Modelagem no R".
+2) Nao renomeie nem mova as subpastas 01_ENTRADAS_CONGELADAS,
+   02_R28_CHECKPOINTS e o manifesto.
+3) Abra R30_EXECUTAR_GRADE_72_UPAS.R e clique Source.
+4) O script confere MD5, entradas, divisao por UPA, versoes dos pacotes
+   maxnet/ecospat e seis checkpoints R28 antes de ajustar modelos.
+5) A pasta 03_RESULTADOS_R30_GRADE_72 sera criada automaticamente.
+6) Se interromper a execucao, abra o MESMO script e clique Source de novo.
+   O codigo confere e reaproveita os checkpoints prontos.
+7) Quando houver 30_METRICAS_72_AVALIACOES.csv, compacte TODA a pasta
+   03_RESULTADOS_R30_GRADE_72 e envie para auditoria.
+
+O QUE SERA EXECUTADO
+- 2 especies x 3 paineis locais x 3 features (L, LQ, LQH) x 4 RM
+  (1,2,3,4) = 72 avaliacoes.
+- 6 modelos LQH/RM4 ja executados no R28: APROVEITADOS dos RDS.
+- 66 ajustes NOVOS. O R30 nao altera o R28.
+- Todas as divisoes de R27 foram mantidas; B2 com 10.000 pontos.
+- 6 preditores: altitude, declividade, dist_rio, BIO12, BIO17,
+  textura como fator categorico (2,3,4,6,7).
+- Modelagem por maxnet; previsao cloglog/clamp=TRUE; AUC, Boyce
+  original, Boyce de 10 classes, omissao P10, AUC dentro das
+  propriedades e dentro das UPAs, coeficientes ativos.
+
+REGRAS CIENTIFICAS
+- Os seis paineis sao testes LOCAIS de transferibilidade entre UPAs;
+  as UPAs de treino/validacao podem ser contiguas.
+- A grade e EXPLORATORIA: os paineis ja foram analisados antes.
+- Nenhum resultado deve ser chamado de validacao regional independente.
+- Nenhum criterio unico (AUC/Boyce/omissao) define o melhor modelo.
+- As sete propriedades de teste externo NAO entram no pacote.
+- Preservar integralmente dados originais, R01-R29 e outputs anteriores.
+
+DETECCAO DE ERROS
+- Se falhar antes da linha 'PREFLIGHT OK', nao inicie ajustes; envie
+  a mensagem de erro. Confira que o ZIP foi extraido inteiro.
+- Pacotes requeridos: maxnet 0.1.4, ecospat 4.1.4.
+- Os modelos novos podem exigir processamento substancial; os
+  checkpoints impedem perder ajustes concluidos.
+- A integridade dos CSVs, a montagem da grade e o ZIP foram
+  verificados fora do R; a execucao MaxEnt depende do RStudio.

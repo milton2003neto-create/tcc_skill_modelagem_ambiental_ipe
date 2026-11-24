@@ -1,0 +1,9 @@
+R27 - AUDITORIA CONCLUIDA
+Data: 2026-11-18 09:57:40.326741
+Seis paineis locais conferidos; quatro direcoes reciprocas conferidas.
+Random 50/50 conferido; esta referencia NAO e independente espacialmente.
+Nenhum modelo MaxEnt ajustado; nenhum fold antigo alterado.
+Nao usar os 6 paineis como validacao regional independente.
+Modelos R19 NAO reutilizaveis nas novas particoes.
+Sete propriedades de teste externo permanecem excluidas.
+Saida: C:/Users/engle/Music/TCC - Ipes - Inicio do zero/TCC - Ipes - Inicio do zero/05 - Modelagem no R/R27_TCC_IPES_PLANEJAMENTO_UPAS_V1/R27_TCC_IPES_V1/03_RESULTADOS_R_20261118_095740

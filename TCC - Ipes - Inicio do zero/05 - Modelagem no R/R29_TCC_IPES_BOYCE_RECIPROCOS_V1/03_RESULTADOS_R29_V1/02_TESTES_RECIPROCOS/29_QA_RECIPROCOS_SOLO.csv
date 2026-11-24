@@ -1,0 +1,5 @@
+"cenario_id","especie","propriedade","upa_treino","upa_validacao","n_treino","n_bg_treino","n_validacao","n_bg_validacao","solo_niveis_treino","solo_niveis_novos","n_presencas_solo_novo","n_bg_solo_novo","perc_presencas_solo_novo","status_solo","distancia_limites_km"
+"RECIP_ROXO_1","Ipe-roxo","HERMES","HERMES|UPA 01","HERMES|UPA 03",233,273,212,131,"2;3;4;6","",0,0,0,"OK",0.678345064116765
+"RECIP_ROXO_2","Ipe-roxo","HERMES","HERMES|UPA 03","HERMES|UPA 01",212,131,233,273,"2;3;4;6","",0,0,0,"OK",0.678345064116765
+"RECIP_AMARELO_1","Ipe-amarelo","LIMÃO","LIMÃO|UPA 02","LIMÃO|UPA 03",187,137,206,141,"2;3","4",7,5,3.39805825242718,"ALERTA_EXTRAPOLACAO_CATEGORICA",0
+"RECIP_AMARELO_2","Ipe-amarelo","LIMÃO","LIMÃO|UPA 03","LIMÃO|UPA 02",206,141,187,137,"2;3;4","",0,0,0,"OK",0

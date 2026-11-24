@@ -1,0 +1,44 @@
+TCC IPES - R29 PARTE 3: DOIS MODELOS MAXENT ALEATORIOS 50/50
+
+PASSO A PASSO
+1. Extraia o ZIP inteiro na pasta 05 - Modelagem no R, sem mudar a estrutura.
+2. No RStudio abra R29_03_AJUSTAR_ALEATORIO_50_50_V1.R.
+3. Clique em Source (nao precisa selecionar CSVs).
+4. Espere aparecer "R29 PARTE 3 CONCLUIDO" no console.
+5. Compacte e envie a pasta 03_RESULTADOS_ALEATORIO_50_50_V1 inteira.
+
+ENTRADAS COPIADAS DO R27
+- 05_PRESENCAS_UM_POR_PIXEL_30M.csv  (8.680 presencas)
+- 18_BACKGROUND_B2_10000_COM_FOLDS.csv (10.000 pontos)
+- 27_ALEATORIO_50_50_PRESENCAS.csv (sorteio previamente auditado)
+- 27_ALEATORIO_50_50_BACKGROUND.csv (sorteio previamente auditado)
+Todos com MD5 e tamanho conferidos antes de qualquer ajuste.
+
+MODELOS (somente dois)
+- Ipe-roxo: 1.620 presencas treino, 1.628 validacao
+- Ipe-amarelo: 2.706 presencas treino, 2.726 validacao
+- Background B2 comum: 4.986 treino e 5.014 validacao
+- LQH, RM 4, 6 preditores, solo categórico, cloglog, clamping.
+- maxnet 0.1.4, ecospat 4.1.4 (mesmas versoes usadas no R28).
+- P10 retirado das presencas de treinamento, sem ajuste no teste.
+- Boyce nclass=0 e nclass=10, AUC e omissao por especie.
+
+IMPORTANTE
+- A divisao 50/50 reutiliza UPAs no treino e na validacao.
+- Isto NAO e validacao espacial independente. E REFERENCIA EXPLORATORIA.
+- Nenhum resultado da divisao deve ser usado como selecao final de parametros.
+- Nada sera escrito nas pastas R01-R29 anteriores.
+- As sete propriedades externas de teste permanecem fora do pacote.
+- O codigo passou por verificacao estrutural e checagem das entradas,
+  mas os dois ajustes maxnet precisam ser executados no RStudio do usuario.
+- Se houver interrupcao, execute Source novamente; checkpoints validos
+  serao conferidos, e nenhum modelo concluido sera ajustado outra vez.
+
+SAIDAS
+- 29_03_METRICAS_2_MODELOS.csv
+- 29_03_RESULTADO_POR_PROPRIEDADE.csv
+- 29_03_RESULTADO_POR_UPA.csv
+- 29_03_PREVISOES/ (treino e validacao)
+- 29_03_MODELOS_RDS/ (modelos)
+- 29_03_CHECKPOINTS/ (retomada)
+- 29_03_GRAFICOS/ e 29_03_RELATORIO_EXECUCAO.txt

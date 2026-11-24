@@ -1,0 +1,24 @@
+TCC IPES | R30 GRADE LOCAL - 72 AVALIACOES
+Versao: R30_GRADE_72_UPAS_V1_20261118
+Data: 2026-11-24 20:14:11.051353
+2 especies x 3 paineis R27 x 3 features (L,LQ,LQH) x 4 RM (1,2,3,4).
+6 checkpoints LQH/RM4 do R28 conferidos e reaproveitados.
+66 ajustes R30 novos; NAO foram reamostrados registros.
+AUC/Boyce de validacao: presenca versus background B2 da validacao.
+Boyce principal: ecospat nclass=0; sensibilidade: nclass=10.
+P10 calculado SOMENTE nas presencas de treinamento.
+AUC intra-UPA e intra-propriedade ponderada por pares presenca-background.
+UPAs de validacao podem tocar outras UPAs de treino:
+VALIDACAO LOCAL; NAO prova transferencia regional independente.
+Comparacoes entre configuracoes sao EXPLORATORIAS.
+Nao selecionar automaticamente melhor ajuste por maior AUC.
+Sete propriedades externas nao foram acessadas, e devem permanecer intactas.
+R01-R29 permanecem inalterados.
+
+PROXIMO: auditar 72 metricas, pior UPA/painel, Boyce e complexidade;
+definir estrategia de selecao sem usar teste externo.
+
+RESUMO:
+Total: 72
+Reaproveitados R28: 6
+Novos R30: 66

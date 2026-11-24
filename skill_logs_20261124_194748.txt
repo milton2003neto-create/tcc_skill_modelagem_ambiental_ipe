@@ -1,0 +1,38 @@
+[2026-11-24T19:47:48.727449] INFO: Verificando ambiente...
+[2026-11-24T19:47:48.727567] INFO: Python 3.13.15: OK
+[2026-11-24T19:47:48.804631] INFO: R instalado: OK
+[2026-11-24T19:47:48.805506] INFO: Diretórios projeto: OK
+[2026-11-24T19:47:48.805647] INFO: Verificação ambiente: ✓ OK
+[2026-11-24T19:47:48.805900] INFO: Modelos candidatos: 2
+[2026-11-24T19:47:48.806001] INFO:   ROXO: R28_ROXO_LOCAL_UPAS_01_LQH_RM4 (AUC 0.5566, Boyce 0.842)
+[2026-11-24T19:47:48.806079] INFO:   AMARELO: R28_AMARELO_LOCAL_UPAS_03_LQH_RM4 (AUC 0.6813, Boyce 0.934)
+[2026-11-24T19:47:48.806171] INFO: Preparando R31...
+[2026-11-24T19:47:48.807113] INFO: R31 estrutura pronta: C:\Users\jotac\Downloads\TCC MILTON\TCC - Ipes - Inicio do zero\05 - Modelagem no R\R31_TCC_IPES_VALIDACAO_EXTERNA_V1
+[2026-11-24T19:47:48.807219] INFO: ======================================================================
+[2026-11-24T19:47:48.807294] INFO: WORKFLOW COMPLETO: R28 -> R30 -> R31
+[2026-11-24T19:47:48.807381] INFO: ======================================================================
+[2026-11-24T19:47:48.807478] INFO: 
+[ETAPA] R28 (6 modelos)...
+[2026-11-24T19:47:48.807608] INFO: Executando R28...
+[2026-11-24T19:47:48.807893] INFO: R28 já executado: C:\Users\jotac\Downloads\TCC MILTON\TCC - Ipes - Inicio do zero\05 - Modelagem no R\R28_TCC_IPES_6_MODELOS_LOCAIS_V1_1_CORRIGIDO\03_RESULTADOS_R28_V1_1
+[2026-11-24T19:47:48.807989] INFO: ✓ R28 (6 modelos) OK
+[2026-11-24T19:47:48.808067] INFO: 
+[ETAPA] R30 (72 modelos)...
+[2026-11-24T19:47:48.808191] INFO: Executando R30...
+[2026-11-24T19:48:23.973309] INFO: R30 sucesso (72 modelos)
+[2026-11-24T19:48:23.973435] INFO: ✓ R30 (72 modelos) OK
+[2026-11-24T19:48:23.973523] INFO: 
+[ETAPA] R31 (validação)...
+[2026-11-24T19:48:23.973705] INFO: Executando R31...
+[2026-11-24T19:48:24.448090] ERROR: R31 erro: Error in cat("  maxnet:", packageVersion("maxnet"), "\n") : 
+  argument 2 (type 'list') cannot be handled by 'cat'
+Execution halted
+
+[2026-11-24T19:48:24.448288] ERROR: ✗ R31 (validação) FALHOU
+[2026-11-24T19:48:24.448373] INFO: 
+======================================================================
+[2026-11-24T19:48:24.448507] INFO: ✗ WORKFLOW FALHOU
+[2026-11-24T19:48:24.448593] INFO: ======================================================================
+[2026-11-24T19:48:24.448807] INFO: Executando R31 simulação...
+[2026-11-24T19:48:24.453352] INFO: R31 completo: transferência FALHA
+[2026-11-24T19:48:24.453478] INFO: Gerando sumário workflow...

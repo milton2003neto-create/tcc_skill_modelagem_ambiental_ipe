@@ -1,0 +1,16 @@
+R29 - 4 TESTES RECIPROCOS LOCAL ENTRE UPAS
+Versao: R29_RECIPROCOS_V1_20261118
+Executado: 2026-11-18 15:07:56.721724
+Roxo: Hermes UPA 01 ↔ UPA 03; Amarelo: Limao UPA 02 ↔ UPA 03.
+Treino e validacao usam APENAS AS DUAS UPAS da propriedade indicada.
+Seis preditores; textura em fator; features LQH, RM 4; maxnet 0.1.4.
+As sete propriedades externas nao foram consultadas.
+AUC e Boyce usam BG B2 de VALIDACAO; P10 definido no TREINO.
+Os BG de treinamento tem apenas 131 a 273 pontos: limitacao de estabilidade.
+ALERTA: uma direcao do amarelo tem presencas com classe de textura ausente do treino.
+Esses scores sao extrapolatorios para essa classe, nao estimativa de preferencia.
+Nenhum registro foi excluido, imputado ou recodificado.
+Avaliacao por duas UPAs NAO equivale a transferencia entre regioes independentes.
+AUC e Boyce podem divergir; interpretar scores, omissao e curvas P/E conjuntamente.
+Nao escolher modelo definitivo com esses reciprocos; nao alterar folds originais.
+A comparacao de duas UPAs nao e diretamente equivalente aos paineis R28.

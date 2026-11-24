@@ -1,0 +1,17 @@
+TCC IPES — R28 V1.1
+
+CAUSA DO ERRO ORIGINAL:
+  x <- montar_x(rbind(tp,tb))
+As presencas R05 tem 16 colunas; o background R18 tem 14. rbind das tabelas completas e invalido.
+
+CORRECAO:
+  x <- rbind(montar_x(tp),montar_x(tb))
+A funcao montar_x seleciona os mesmos seis preditores e converte textura_subgrupo em fator com niveis globais.
+
+OUTRA CORRECAO PREVENTIVA:
+  resultado_local <- function(pr,bg,lim,met_tipo,z)
+A V1 declarava um parametro extra up, ausente nas duas chamadas, o que causaria erro apos o ajuste.
+
+Integridade: mesmas entradas congeladas, MD5 inalterados. Modelos: LQH, RM=4, seis preditores, BG B2 e mesmos paineis R27.
+Nova pasta de saida: 03_RESULTADOS_R28_V1_1. Nenhum dado original nem modelo antigo modificado.
+A execucao completa deve ser realizada no RStudio com maxnet e ecospat instalados.

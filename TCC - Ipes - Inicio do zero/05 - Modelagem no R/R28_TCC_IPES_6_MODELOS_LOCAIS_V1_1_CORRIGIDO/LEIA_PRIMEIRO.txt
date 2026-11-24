@@ -1,0 +1,58 @@
+TCC IPES | R28 V1.1 - SEIS MODELOS MAXENT LOCAIS POR UPA
+======================================================
+
+OBJETIVO
+Reajustar somente SEIS modelos novos (2 especies x 3 paineis R27), usando
+UPAs completas para validacao e todas as demais UPAs do desenvolvimento
+para treinamento. Os modelos antigos do R19 NAO sao reaproveitados.
+
+PARAMETROS FIXOS
+Features: LQH | RM: 4 | MaxEnt: maxnet | 6 variaveis
+Altitude, declividade, distancia raster aos rios, BIO12, BIO17 e textura
+textural do solo como FATOR, niveis 2,3,4,6,7.
+Background B2: os mesmos 10.000 pontos, repartidos por UPA.
+Previsao cloglog com clamping TRUE. Limiar: percentil 10 do treino.
+
+COMO EXECUTAR
+1) Extraia ESTE ZIP INTEIRO para uma pasta no computador.
+2) Abra R28_AJUSTAR_6_MAXENT_UPAS_V1_1.R no RStudio.
+3) Clique em Source (nao mude o diretorio de trabalho).
+4) O R28 confere automaticamente MD5, plano das UPAs, amostras e solo.
+5) Depois, ele ajusta SEIS modelos e grava na pasta 03_RESULTADOS_R28_V1_1.
+6) Se interromper a execucao, execute o MESMO SCRIPT novamente;
+   checkpoints validos serao verificados e reaproveitados.
+
+NÃO precisa selecionar arquivos, editar caminhos ou rodar R19-R27 novamente.
+SE faltar um pacote, instale no RStudio com install.packages('maxnet') ou
+install.packages('ecospat'). O script exige as versoes usadas nos experimentos
+originais (maxnet 0.1.4 e ecospat 4.1.4) para preservar comparabilidade.
+
+RESULTADOS A ENVIAR
+Compacte a pasta 03_RESULTADOS_R28_V1_1 e envie-a para auditoria.
+Essenciais: 28_METRICAS_6_MODELOS.csv, 28_AUC_OMISSAO_POR_UPA.csv,
+28_AUC_OMISSAO_POR_PROPRIEDADE.csv, 28_AUDITORIA_SOLO.csv,
+28_RELATORIO_EXECUCAO.txt e 28_GRAFICOS/.
+Modelos RDS e previsoes CSV tambem ficam preservados na pasta.
+
+CUIDADOS METODOLOGICOS
+- Este e um experimento EXPLORATORIO de transferencia LOCAL entre UPAs.
+- Muitas UPAs de validacao sao CONTIGUAS a UPAs de treinamento.
+- Nao atribuir independencia regional a este experimento.
+- O resultado 50/50 aleatorio e os quatro reciprocos NAO sao rodados aqui.
+- O teste externo (sete propriedades) NAO e usado.
+- Nao escolher modelo final somente pela AUC ou pelo maior Boyce medio.
+- Sem alterar o desenho original R19, o teste entre propriedades e comparavel
+  COMO OUTRA ESCALA de avaliacao, nao como amostras idênticas.
+
+VERIFICACAO
+O pacote foi gerado a partir das copias exatas do R27 auditado.
+MD5 constam de 28_MANIFESTO_CONGELADO.csv.
+Verificacao estrutural e numerica dos CSVs: executada.
+A execucao do MaxEnt em R so pode ser confirmada na maquina com R e pacotes.
+
+CORRECOES V1.1:
+- Treino combina somente as seis variaveis ambientais, nao todas as colunas de presenca/background.
+- Funcao de metricas locais corrigida para cinco argumentos, sem argumento extra.
+- Nova pasta de saida V1.1: preserva integralmente resultados e checkpoints V1.
+- Todos os cinco CSVs congelados sao identicos aos da V1 (mesmos MD5).
+

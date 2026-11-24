@@ -1,0 +1,24 @@
+R version 4.6.2 (2026-10-29 ucrt)
+Platform: x86_64-w64-mingw32/x64
+Running under: Windows 11 x64 (build 26200)
+
+Matrix products: default
+  LAPACK version 3.12.1
+
+locale:
+[1] LC_COLLATE=Portuguese_Brazil.utf8  LC_CTYPE=Portuguese_Brazil.utf8   
+[3] LC_MONETARY=Portuguese_Brazil.utf8 LC_NUMERIC=C                      
+[5] LC_TIME=Portuguese_Brazil.utf8    
+
+time zone: America/Fortaleza
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+loaded via a namespace (and not attached):
+ [1] codetools_0.2-20   maxnet_0.1.4       shape_1.4.6.1      Matrix_1.7-6      
+ [5] lattice_0.23-1     e1071_1.7-17       splines_4.6.2      iterators_1.0.14  
+ [9] KernSmooth_2.23-27 classInt_0.4-11    foreach_1.5.2      grid_4.6.2        
+[13] proxy_0.4-29       class_7.3-24       compiler_4.6.2     tools_4.6.2       
+[17] survival_3.8-12    Rcpp_1.1.2         ecospat_4.1.4      glmnet_5.2        

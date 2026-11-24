@@ -1,0 +1,7 @@
+﻿especie,cenario_id,upas_validacao,presencas_treino,background_treino,presencas_validacao,background_validacao,categorias_solo_validacao_sem_treino,checkpoint_R28,ajustes_novos
+Ipe-roxo,LOCAL_UPAS_01,3,2854,9531,394,469,0,PRESENTE,11
+Ipe-roxo,LOCAL_UPAS_02,3,2849,9516,399,484,0,PRESENTE,11
+Ipe-roxo,LOCAL_UPAS_03,2,2860,9576,388,424,0,PRESENTE,11
+Ipe-amarelo,LOCAL_UPAS_01,4,5047,9319,385,681,0,PRESENTE,11
+Ipe-amarelo,LOCAL_UPAS_02,3,5049,9583,383,417,0,PRESENTE,11
+Ipe-amarelo,LOCAL_UPAS_03,4,5047,9387,385,613,0,PRESENTE,11

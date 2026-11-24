@@ -1,0 +1,55 @@
+ 1. Linguagens, Runtimes e Controle de Versão
+Git & GitHub:
+Git (SMC): Instalar a versão oficial de 64 bits (git-scm.com). Essencial para versionamento dos scripts em R, PyQGIS e notas do Obsidian.
+Conta no GitHub: Criar repositório privado para o TCC (tcc-modelagem-ipes), habilitando backup contínuo e sincronização de notas/scripts.
+Python 3.12+:
+Instalar via instalador oficial ou Conda/Miniconda (marcando "Add Python to PATH").
+Necessário para scripts de manipulação de dados brutos em lote, automação PyQGIS fora da GUI e comunicação via API/MCP.
+Node.js (LTS):
+Instalar a versão LTS (nodejs.org). Necessário para executar extensões do VS Code, servidores MCP (Model Context Protocol) e ferramentas de automação local.
+Docker Desktop:
+Instalar o Docker Desktop (com suporte a WSL2 no Windows).
+Permite rodar ambientes isolados de R/MaxEnt ou banco de dados relacional/PostGIS, se necessário no futuro.
+🛠️ 2. Ambientes de Desenvolvimento (IDEs) e Produtividade
+VS Code (Visual Studio Code):
+IDE principal para integrar scripts Python, R e Markdown sincronizado com o Obsidian.
+Extensões Recomendadas no VS Code:
+R / R Editor Support: Suporte e autocomplete para R.
+Python / Pylance: Autocomplete e depuração em Python.
+GitLens / Git Graph: Visualização detalhada de commits e histórico do projeto.
+Foam ou Dendron / Markdown All in One: Navegação e edição avançada de Markdown.
+Claude Code / Continue / VS Code Claude Extensions: Integração direta do Claude ao seu código e pasta local.
+Microsoft Office (Word & Excel):
+Excel: Inspeção rápida dos CSVs brutos de inventários florestais e tabelas de métricas de validação.
+Word: Formatação final e adaptação do texto da monografia de acordo com o Manual do TCC (IPES/UFRA).
+Power BI Desktop:
+Instalar via Microsoft Store ou download oficial.
+Utilizado para criar dashboards executivos interativos auditando as 34 propriedades florestais, distribuição por classe diamétrica (DAP) e comparação das 7 propriedades de validação externa reservadas.
+🌍 3. Sistemas de Geoprocessamento e Modelagem (GIS & SDM)
+QGIS 3.x LTR (Long Term Release):
+Instalar a versão LTR com GRASS GIS e SAGA GIS empacotados.
+Configurado com plugins cruciais: QuickMapServices (imagens de satélite/Google/Bing), Semi-Automatic Classification Plugin (SCP), Mesh Calculator e Processing Saga/GDAL.
+R & RStudio Desktop:
+R (versão 4.3+) e RStudio Desktop.
+Pacotes Fundamentais do R para SDM:
+maxnet: Algoritmo MaxEnt nativo em R.
+ecospat: Avaliação de modelos e cálculo do índice Boyce contínuo.
+terra e sf: Leitura, processamento e manipulação ultrarrápida de rasters e vetores.
+dismo e raster: Compatibilidade com rotinas legadas.
+ggplot2 e patchwork: Geração de gráficos de importância de variáveis e curvas de resposta.
+Java Runtime Environment (JRE/JDK 11+):
+Necessário para compatibilidade com o executável standalone do MaxEnt (maxent.jar).
+📓 4. Ecossistema Obsidian (Memória Permanente)
+Obsidian App:
+Instalar e abrir como diretório a sua pasta 07 - Anotacoes do TCC.
+Plugins da Comunidade do Obsidian:
+Dataview: Para criar consultas automáticas e tabelas dinâmicas das notas de inventários e resultados dos scripts R01–R33.
+Advanced Tables: Formatação rápida de tabelas Markdown.
+Obsidian Git: Backup automático e sincronização silenciosa da sua base de conhecimento para o GitHub.
+Excalidraw / Canvas: Esboço visual dos fluxogramas metodológicos.
+Omnisearch: Busca avançada por texto completo em PDF e Markdown dentro do vault.
+🤖 5. Prompts & Claude Skills Recomendadas
+Skills & Servidores MCP para o Claude:
+R/SDM Expert Skill: Orientação metodológica em MaxEnt (congelamento de protocolo, Background B2 restrito às UPAs e validação impermeável nas 7 propriedades).
+PyQGIS Automation Skill: Geração e depuração de scripts de processamento de geodados no QGIS.
+Obsidian Markdown Structurer: Formatação padronizada das notas no vault com metadados (frontmatter) e rastreabilidade científica.

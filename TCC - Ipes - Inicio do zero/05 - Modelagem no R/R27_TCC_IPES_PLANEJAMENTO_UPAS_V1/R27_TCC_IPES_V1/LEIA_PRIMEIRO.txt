@@ -1,0 +1,19 @@
+R27 — PLANEJAMENTO DE VALIDACAO POR UPA | TCC IPES
+
+1) Extraia TODO o ZIP, mantendo 01_ENTRADAS_COPIAS e 02_PLANO_PRECALCULADO.
+2) Abra R27_AUDITAR_PLANO_UPAS_V1.R no RStudio.
+3) Clique em Source. NAO precisa selecionar nenhum arquivo.
+4) O R confere MD5 das fontes, 64 UPAs, 6 paineis, distancias, 4 direcoes reciprocas, sorteio 50/50.
+5) O resultado aparece em uma nova subpasta 03_RESULTADOS_R_AAAAMMDD_HHMMSS.
+6) Envie essa subpasta ZIP; a etapa R28 sera feita depois da auditoria.
+
+ATENCAO:
+- Estes sao CENARIOS PROPOSTOS, nao folds aplicados.
+- Os seis paineis usam UPAs inteiras reservadas e treinam nas outras UPAs do desenvolvimento.
+- Reciprocidade usa apenas duas UPAs por experiencia e depende de QA previa ao ajuste.
+- Referencia aleatoria 50/50 nao e validacao espacial independente.
+- As sete propriedades de teste nao foram usadas.
+- Nao use os objetos RDS do R19 para novas particoes: exige reajustes.
+- Nao descarte UPAs pequenas: todas as 64 continuam elegiveis ao treinamento.
+
+Se aparecer erro de caminho, garanta que script e subpastas estejam juntos dentro da pasta extraida.

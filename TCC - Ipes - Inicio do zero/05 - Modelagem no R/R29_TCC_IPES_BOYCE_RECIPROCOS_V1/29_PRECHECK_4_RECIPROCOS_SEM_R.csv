@@ -1,0 +1,5 @@
+cenario_id,especie,upa_treino,upa_validacao,n_presencas_treino,n_background_treino,n_presencas_validacao,n_background_validacao,categorias_solo_novas,n_presencas_solo_novo,n_background_solo_novo,distancia_entre_UPAs_km
+RECIP_ROXO_1,Ipe-roxo,HERMES|UPA 01,HERMES|UPA 03,233,273,212,131,,0,0,0.678345064116765
+RECIP_ROXO_2,Ipe-roxo,HERMES|UPA 03,HERMES|UPA 01,212,131,233,273,,0,0,0.678345064116765
+RECIP_AMARELO_1,Ipe-amarelo,LIMÃO|UPA 02,LIMÃO|UPA 03,187,137,206,141,4,7,5,0.0
+RECIP_AMARELO_2,Ipe-amarelo,LIMÃO|UPA 03,LIMÃO|UPA 02,206,141,187,137,,0,0,0.0

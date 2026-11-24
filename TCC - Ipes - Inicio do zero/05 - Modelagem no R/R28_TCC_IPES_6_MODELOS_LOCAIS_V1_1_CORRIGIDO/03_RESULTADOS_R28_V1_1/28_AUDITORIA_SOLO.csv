@@ -1,0 +1,7 @@
+"id","especie","cenario_id","niveis_treino","niveis_validacao","niveis_sem_treino","status"
+"R28_ROXO_LOCAL_UPAS_01_LQH_RM4","Ipe-roxo","LOCAL_UPAS_01","2;3;4;6;7","2;3;4;6;7","","OK"
+"R28_AMARELO_LOCAL_UPAS_01_LQH_RM4","Ipe-amarelo","LOCAL_UPAS_01","2;3;4;6;7","2;3;4;6","","OK"
+"R28_ROXO_LOCAL_UPAS_02_LQH_RM4","Ipe-roxo","LOCAL_UPAS_02","2;3;4;6;7","2;3;4;6","","OK"
+"R28_AMARELO_LOCAL_UPAS_02_LQH_RM4","Ipe-amarelo","LOCAL_UPAS_02","2;3;4;6;7","2;3;4;6","","OK"
+"R28_ROXO_LOCAL_UPAS_03_LQH_RM4","Ipe-roxo","LOCAL_UPAS_03","2;3;4;6;7","2;3;4;6;7","","OK"
+"R28_AMARELO_LOCAL_UPAS_03_LQH_RM4","Ipe-amarelo","LOCAL_UPAS_03","2;3;4;6;7","2;3;4;6","","OK"
