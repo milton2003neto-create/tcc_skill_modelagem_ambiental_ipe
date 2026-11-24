@@ -101,7 +101,189 @@ TCC MILTON/
 
 ---
 
-## Como Usar
+## 📋 Guia Completo Setup & Instalação
+
+### ⚠️ REQUISITOS MÍNIMOS
+
+- **Windows 10/11** (64-bit)
+- **Internet** (para download R e pacotes)
+- **~3 GB** espaço em disco
+- **Tempo:** ~20-30 minutos (primeira vez)
+
+---
+
+### 🔧 PASSO 1: Instalar Python 3.13+
+
+**Verificar se já tem Python:**
+```powershell
+python --version
+```
+
+Se aparecer versão ≥ 3.8 → **pule para PASSO 2**.
+
+Se não, baixe e instale:
+- 📥 [Python 3.13 (Windows installer)](https://www.python.org/downloads/release/python-31315/)
+- Execute instalador
+- ✅ Marque: "Add Python to PATH"
+- Clique "Install Now"
+
+**Verificar após instalar:**
+```powershell
+python --version
+```
+
+---
+
+### 🔴 PASSO 2: Instalar R 4.6.2
+
+**Baixe o instalador:**
+- 📥 [R-4.6.2-win.exe](https://cran.r-project.org/bin/windows/base/R-4.6.2-win.exe)
+
+**Instalar:**
+1. Execute o arquivo `.exe`
+2. Escolha idioma (português OK)
+3. Aceite termos
+4. Escolha pasta: `C:\Program Files\R\R-4.6.2` (padrão)
+5. Escolha componentes: **Instale TUDO** (padrão)
+6. Configure startup: **Não** (padrão)
+7. Clique "Finish"
+
+**Tempo:** ~5-10 minutos
+
+---
+
+### 🔗 PASSO 3: Adicionar R ao PATH do Windows
+
+**Opção A: GUI (Recomendado)**
+
+1. Pressione `Win+X` → Clique **System**
+2. Clique **Advanced system settings** (lado esquerdo)
+3. Clique botão **Environment Variables** (canto inferior direito)
+
+4. **Seção "User variables for [seu user]":**
+   - Clique **New**
+   - Variable name: `R_HOME`
+   - Variable value: `C:\Program Files\R\R-4.6.2`
+   - Clique **OK**
+
+5. **Seção "User variables", variável "Path":**
+   - Selecione `Path`
+   - Clique **Edit**
+   - Clique **New**
+   - Cole: `C:\Program Files\R\R-4.6.2\bin`
+   - Clique **OK** em todas as janelas
+
+6. **Reinicie completamente:**
+   - Feche PowerShell/VS Code
+   - Reabra terminal
+
+**Opção B: PowerShell (Rápido)**
+
+Abra PowerShell **como Administrador** e execute:
+
+```powershell
+[Environment]::SetEnvironmentVariable("R_HOME", "C:\Program Files\R\R-4.6.2", "User")
+[Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Program Files\R\R-4.6.2\bin", "User")
+```
+
+**Reinicie PowerShell** depois.
+
+**Verificar:**
+```powershell
+Rscript --version
+```
+
+Deve exibir: `Rscript (R) version 4.6.2 (...)`
+
+---
+
+### 📦 PASSO 4: Instalar Pacotes R
+
+**Abra PowerShell como Administrador** e execute:
+
+```powershell
+Rscript -e "options(repos=c(CRAN='https://cloud.r-project.org')); dir.create(Sys.getenv('R_LIBS_USER'), showWarnings=FALSE, recursive=TRUE); install.packages(c('maxnet','ecospat','raster','sp'), lib=Sys.getenv('R_LIBS_USER'))"
+```
+
+**Aguarde instalação** (~3-5 minutos). Pode ignorar warnings.
+
+**Pacotes instalados:**
+- `maxnet` — Modelagem MaxEnt
+- `ecospat` — Validação ecológica
+- `raster` — Processamento grades 30m
+- `sp` — Classes espaciais
+
+**Verificar (opcional):**
+```powershell
+Rscript -e "library(maxnet); library(ecospat); library(raster); library(sp); cat('✓ Pacotes OK\n')"
+```
+
+---
+
+### ✅ PASSO 5: Verificar Ambiente Completo
+
+Abra PowerShell no diretório do projeto:
+
+```powershell
+cd C:\Users\jotac\Downloads\TCC\ MILTON
+python gerar_dashboard_dinamico.py
+```
+
+**Esperado:**
+```
+✅ Python: 3.13.15 ✓
+✅ R: 4.6.2 ✓
+✅ Pacotes R: 4/4 ✓
+✅ Diretórios: 4/4 ✓
+✓ Dashboard gerado
+```
+
+Se tudo está ✓, prossiga para o PASSO 6.
+
+---
+
+### 🚀 PASSO 6: Executar Skill Completo
+
+```powershell
+python skill_modelagem_ipes.py
+```
+
+**O que acontece:**
+1. ✓ Gera dashboard dinâmico
+2. ✓ Verifica ambiente
+3. ✓ Executa R28 (6 modelos) — ~30s
+4. ✓ Executa R30 (72 modelos) — ~45s
+5. ✓ Executa R31 (validação) — ~1s
+
+**Tempo total:** ~2 minutos (depois de tudo instalado)
+
+**Resultados salvos em:**
+- Logs: `skill_logs_*.txt`
+- R28: Modelos 6 locais
+- R30: Grade 72 modelos
+- R31: Validação 7 propriedades
+
+---
+
+### 🐛 Troubleshooting
+
+| Problema | Solução |
+|----------|---------|
+| "R não encontrado" | Reinicie PowerShell após adicionar ao PATH |
+| "Pacotes não encontrados" | Execute instalação como **Administrador** |
+| "Dashboard mostra ❌" | Execute `python gerar_dashboard_dinamico.py` |
+| "Skill falha em R28/R30" | Verifique pacotes: `Rscript -e "library(maxnet)"` |
+
+---
+
+### 📊 Verificação Dashboard
+
+Abra no navegador:
+```
+file:///C:/Users/jotac/Downloads/TCC%20MILTON/DASHBOARD_AMBIENTE.html
+```
+
+Dashboard é **atualizado dinamicamente** a cada execução do skill.
 
 ### 1. Verificar Ambiente
 ```bash
@@ -109,8 +291,9 @@ python skill_modelagem_ipes.py
 ```
 
 **Requisitos:**
-- Python ≥ 3.8
-- R ≥ 4.0 com pacotes: `maxnet`, `ecospat`, `raster`, `sp`
+- Python ≥ 3.8 ✓
+- R ≥ 4.0 com PATH configurado ✓
+- Pacotes R: `maxnet`, `ecospat`, `raster`, `sp`
 - Diretórios dados intactos
 
 ### 2. Executar Workflow Completo

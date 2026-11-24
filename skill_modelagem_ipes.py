@@ -381,6 +381,13 @@ def main():
     print("SKILL: MODELAGEM AMBIENTAL IPÊS")
     print("=" * 70)
 
+    # Gerar dashboard dinâmico
+    try:
+        from gerar_dashboard_dinamico import main as gerar_dashboard
+        gerar_dashboard()
+    except Exception as e:
+        print(f"⚠️  Erro ao gerar dashboard: {e}")
+
     skill = SkillModelagemIpes()
 
     # [1] Verificar ambiente
