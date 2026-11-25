@@ -1,23 +1,18 @@
-# Arquivos grandes
+# Arquivos grandes (dados ficam na pasta "TCC - Ipes - Inicio do zero", fora do Git)
 *.tif
 *.tif.aux.xml
 *.zip
-*.docx
 *.pdf
-*.png
 graphify-out/
-setup_tcc.ps1
 
-# Diretórios dados brutos
-TCC - Ipes - Inicio do zero/01 - Dados originais/
-TCC - Ipes - Inicio do zero/02 - Fontes ambientais/
-TCC - Ipes - Inicio do zero/03 - Trabalho no QGIS/
-TCC - Ipes - Inicio do zero/04 - Dados para o MaxEnt/
-TCC - Ipes - Inicio do zero/06 - Resultados/
-TCC - Ipes - Inicio do zero/07 - Anotacoes do TCC/
+# Resultados gerados pela ferramenta (reproduziveis rodando os scripts)
+resultados/
 
-# Cache
-.DS_Store
-*.pyc
-__pycache__/
+# R / RStudio
 .Rhistory
+.RData
+.Rproj.user/
+*.Rcheck/
+
+# Configuracao local de caminhos (cada computador tem a sua)
+config_local.R
