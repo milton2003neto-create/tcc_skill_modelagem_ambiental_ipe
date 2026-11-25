@@ -12,6 +12,7 @@ source("R/02_CARREGAR_DADOS.R", encoding = "UTF-8")
 source("R/03_DIAGNOSTICO_DADOS.R", encoding = "UTF-8")
 source("R/04_PREPARAR_PROPRIEDADES_RESERVADAS.R", encoding = "UTF-8")
 source("R/05_SELECAO_TREINO_VALIDACAO.R", encoding = "UTF-8")
+source("R/06_SELECAO_VARIAVEIS.R", encoding = "UTF-8")
 suppressPackageStartupMessages({ library(shiny); library(bslib); library(DT) })
 
 caixa_ajuda <- function(...) div(class = "alert alert-info", style = "font-size:0.92em", ...)
@@ -87,7 +88,25 @@ ui <- page_navbar(
                 caixa_ajuda("Distância mínima entre pontos de cada unidade de validação e pontos de treino. ",
                             "Abaixo de ~1 km o ambiente é praticamente o mesmo: a validação mede transferência local, não independente.")))
   ),
-  nav_panel("3. Variáveis", caixa_ajuda("Em construção (etapa E3).")),
+  nav_panel("3. Variáveis",
+    layout_sidebar(
+      sidebar = sidebar(width = 300,
+        caixa_ajuda("Usa o plano da aba 2 (só o TREINO). Mostra variáveis redundantes e recomenda quais manter. Você decide marcando as caixas."),
+        radioButtons("var_metodo", "Correlação usada na regra", c("Maior |r| das duas (rigoroso)" = "maior", "Spearman (robusta)" = "spearman", "Pearson (linear)" = "pearson")),
+        sliderInput("var_r", "Limiar |r|", 0.5, 0.9, 0.7, 0.05),
+        selectInput("var_vif", "Limiar VIF", c("5 (conservador)" = 5, "10 (tolerante)" = 10)),
+        actionButton("var_analisar", "Analisar variáveis", class = "btn-primary"), hr(),
+        checkboxGroupInput("var_escolha", "Variáveis que entram no modelo", choices = setNames(names(VARIAVEIS), VARIAVEIS)),
+        actionButton("var_salvar", "Salvar escolha", class = "btn-success"),
+        uiOutput("var_pasta")),
+      uiOutput("var_avisos"),
+      navset_card_tab(
+        nav_panel("Recomendação", verbatimTextOutput("var_just"), DTOutput("var_rec")),
+        nav_panel("Correlação", plotOutput("var_g1", height = 450)),
+        nav_panel("VIF e solo", layout_columns(plotOutput("var_g2"), DTOutput("var_eta"))),
+        nav_panel("Presença × background", plotOutput("var_g3", height = 500)),
+        nav_panel("AUC univariada", plotOutput("var_g4"))
+      ))),
   nav_panel("4. Background e parâmetros", caixa_ajuda("Em construção (etapa E4).")),
   nav_panel("5. Treinamento", caixa_ajuda("Em construção (etapa E5).")),
   nav_panel("6. Validação", caixa_ajuda("Em construção (etapa E6).")),
@@ -195,6 +214,37 @@ server <- function(input, output, session) {
   })
   output$sel_mapa <- renderPlot({ req(plano_atual()); grafico_mapa_plano(plano_atual(), base_atual()) })
   output$sel_prox <- renderDT({ req(plano_atual()$proximidade); tabela(plano_atual()$proximidade) })
+  # ---- Etapa 3: variaveis ------------------------------------------------------
+  estado$var <- list(); estado$escolha_var <- list(); estado$pasta_var <- list()
+  var_atual <- reactive(estado$var[[input$especie]])
+  observeEvent(input$var_analisar, {
+    if (is.null(plano_atual())) return(showNotification("Primeiro gere (ou aplique) um plano na aba 2.", type = "warning"))
+    r <- executar(withProgress(message = "Calculando correlação, VIF e AUC univariada...", value = 0.5,
+      analisar_variaveis(plano_atual(), base_atual(), input$var_r, as.numeric(input$var_vif), input$var_metodo)))
+    if (!is.null(r)) { estado$var[[input$especie]] <- r; updateCheckboxGroupInput(session, "var_escolha", selected = r$recomendadas) }
+  })
+  output$var_avisos <- renderUI({
+    req(var_atual()); av <- checar_escolha(var_atual(), input$var_escolha %||% character())
+    tagList(lapply(av, function(a) div(class = paste("alert", if (startsWith(a, "CRITICO")) "alert-danger"
+      else if (startsWith(a, "ATENCAO")) "alert-warning" else if (startsWith(a, "OK")) "alert-success" else "alert-secondary"),
+      style = "padding:6px;margin:4px 0;font-size:0.9em", a)))
+  })
+  observeEvent(input$var_salvar, {
+    req(var_atual()); esc <- input$var_escolha %||% character()
+    if (length(esc) < 2) return(showNotification("Escolha pelo menos 2 variáveis.", type = "error"))
+    pasta <- executar(salvar_variaveis(var_atual(), esc, estado$pasta_plano[[input$especie]] %||% NA))
+    if (!is.null(pasta)) { estado$escolha_var[[input$especie]] <- esc; estado$pasta_var[[input$especie]] <- pasta
+      showNotification("Escolha de variáveis salva.", type = "message") }
+  })
+  output$var_pasta <- renderUI({ p <- estado$pasta_var[[input$especie]]; req(p); caixa_ajuda(strong("Salvo em: "), code(p)) })
+  output$var_just <- renderText({ req(var_atual()); paste(var_atual()$justificativa, collapse = "
+") })
+  output$var_rec <- renderDT({ req(var_atual()); tabela(var_atual()$recomendacao[, -1]) })
+  output$var_eta <- renderDT({ req(var_atual()); tabela(transform(var_atual()$eta, eta_com_solo = round(eta_com_solo, 3))) })
+  output$var_g1 <- renderPlot({ req(var_atual()); grafico_correlacao(var_atual()) })
+  output$var_g2 <- renderPlot({ req(var_atual()); grafico_vif(var_atual()) })
+  output$var_g3 <- renderPlot({ req(var_atual()); grafico_densidades(var_atual()) })
+  output$var_g4 <- renderPlot({ req(var_atual()); grafico_auc_univ(var_atual()) })
 }
 
 shinyApp(ui, server)
