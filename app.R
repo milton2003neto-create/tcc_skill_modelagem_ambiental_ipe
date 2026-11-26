@@ -14,6 +14,7 @@ source("R/04_PREPARAR_PROPRIEDADES_RESERVADAS.R", encoding = "UTF-8")
 source("R/05_SELECAO_TREINO_VALIDACAO.R", encoding = "UTF-8")
 source("R/06_SELECAO_VARIAVEIS.R", encoding = "UTF-8")
 source("R/07_BACKGROUND_E_PARAMETROS.R", encoding = "UTF-8")
+source("R/08_TREINAMENTO.R", encoding = "UTF-8")
 suppressPackageStartupMessages({ library(shiny); library(bslib); library(DT) })
 
 caixa_ajuda <- function(...) div(class = "alert alert-info", style = "font-size:0.92em", ...)
@@ -132,7 +133,26 @@ ui <- page_navbar(
         nav_panel("Background", DTOutput("bg_resumo"), plotOutput("bg_mapa", height = 550)),
         nav_panel("Grade e custo", DTOutput("par_grade"), DTOutput("par_custo"))
       ))),
-  nav_panel("5. Treinamento", caixa_ajuda("Em construção (etapa E5).")),
+  nav_panel("5. Treinamento",
+    layout_sidebar(
+      sidebar = sidebar(width = 320,
+        caixa_ajuda("Roda todos os modelos da grade na validação cruzada por folds. Feche outros programas antes (pouca RAM)."),
+        selectInput("tr_cfg", "Configuração salva (aba 4)", choices = NULL),
+        actionButton("tr_rodar", "Rodar todos os modelos", class = "btn-primary"), hr(),
+        uiOutput("tr_escolhido"),
+        helpText("Para escolher outro modelo, clique numa linha da tabela 'Modelos'."),
+        actionButton("tr_jk", "Rodar Jackknife + curva ROC", class = "btn-warning"),
+        actionButton("tr_salvar", "Salvar treinamento", class = "btn-success"),
+        uiOutput("tr_pasta")),
+      uiOutput("tr_avisos"),
+      navset_card_tab(
+        nav_panel("Composição dos folds (TCC)", DTOutput("tr_comp")),
+        nav_panel("Modelos", plotOutput("tr_g1", height = 420), DTOutput("tr_resumo")),
+        nav_panel("Métricas por fold", DTOutput("tr_fold")),
+        nav_panel("Erros e avisos", DTOutput("tr_erros")),
+        nav_panel("Jackknife", plotOutput("tr_g2", height = 450), DTOutput("tr_jk_tab")),
+        nav_panel("Curva ROC", plotOutput("tr_g3", height = 600))
+      ))),
   nav_panel("6. Validação", caixa_ajuda("Em construção (etapa E6).")),
   nav_panel("Ajuda", card(includeMarkdown("docs/AJUDA.md")))
 )
@@ -320,6 +340,58 @@ server <- function(input, output, session) {
   output$bg_mapa <- renderPlot({ b <- estado$bg[[input$especie]]; req(b); grafico_background(b, base_atual(), plano_atual()) })
   output$par_grade <- renderDT(tabela(grade_atual()))
   output$par_custo <- renderDT({ c1 <- estado$custo[[input$especie]]; req(c1); tabela(c1$tabela) })
+  # ---- Etapa 5: treinamento ------------------------------------------------------
+  estado$tr <- list(); estado$escolhido <- list(); estado$jk <- list(); estado$roc <- list(); estado$pasta_tr <- list()
+  observe({
+    estado$pasta_cfg[[input$especie]]
+    pastas <- rev(list.dirs(file.path(PASTA_RESULTADOS, input$especie, "04_parametros"), recursive = FALSE))
+    pastas <- pastas[file.exists(file.path(pastas, "CONFIG_MODELAGEM.rds"))]
+    updateSelectInput(session, "tr_cfg", choices = setNames(pastas, basename(pastas)))
+  })
+  tr_atual <- reactive(estado$tr[[input$especie]])
+  escolhido <- reactive(estado$escolhido[[input$especie]] %||% tr_atual()$recomendado)
+  observeEvent(input$tr_rodar, {
+    req(input$tr_cfg); cfg <- readRDS(file.path(input$tr_cfg, "CONFIG_MODELAGEM.rds"))
+    if (cfg$especie != input$especie) return(showNotification("Essa configuração é de outra espécie.", type = "error"))
+    tr <- executar(withProgress(message = "Treinando modelos...", value = 0, {
+      rodar_grade(cfg, base_atual(), function(i, n, m) setProgress(i / n, detail = sprintf("%d/%d %s", i, n, m)))
+    }))
+    if (!is.null(tr)) { tr$pasta_cfg <- input$tr_cfg; estado$tr[[input$especie]] <- tr; estado$escolhido[[input$especie]] <- NULL
+      estado$jk[[input$especie]] <- NULL; estado$roc[[input$especie]] <- NULL
+      showNotification(sprintf("Grade concluída em %.1f min.", tr$minutos), type = "message") }
+  })
+  observeEvent(input$tr_resumo_rows_selected, {
+    req(tr_atual()); estado$escolhido[[input$especie]] <- tr_atual()$resumo$modelo[input$tr_resumo_rows_selected]
+    estado$jk[[input$especie]] <- NULL; estado$roc[[input$especie]] <- NULL
+  })
+  observeEvent(input$tr_jk, {
+    req(tr_atual())
+    withProgress(message = "Jackknife...", value = 0, {
+      jk <- executar(rodar_jackknife(tr_atual(), escolhido(), base_atual(), function(i, n, m) setProgress(i / n, detail = m)))
+      setProgress(1, detail = "Curva ROC"); roc <- executar(roc_modelo(tr_atual(), escolhido(), base_atual()))
+    })
+    estado$jk[[input$especie]] <- jk; estado$roc[[input$especie]] <- roc
+  })
+  observeEvent(input$tr_salvar, {
+    req(tr_atual())
+    pasta <- executar(salvar_treino(tr_atual(), escolhido(), estado$jk[[input$especie]], estado$roc[[input$especie]], tr_atual()$pasta_cfg))
+    if (!is.null(pasta)) { estado$pasta_tr[[input$especie]] <- pasta; showNotification("Treinamento salvo.", type = "message") }
+  })
+  output$tr_escolhido <- renderUI({ req(tr_atual())
+    caixa_ajuda(strong("Modelo escolhido: "), escolhido(), if (escolhido() == tr_atual()$recomendado) " (recomendado)" else " (diferente do recomendado)") })
+  output$tr_pasta <- renderUI({ p <- estado$pasta_tr[[input$especie]]; req(p); caixa_ajuda(strong("Salvo em: "), code(p)) })
+  output$tr_avisos <- renderUI({ req(tr_atual())
+    tagList(lapply(tr_atual()$justificativa, function(a) div(class = paste("alert", if (startsWith(a, "ATENCAO")) "alert-warning"
+      else if (startsWith(a, "RECOMENDADO")) "alert-success" else "alert-secondary"), style = "padding:6px;margin:4px 0;font-size:0.9em", a))) })
+  output$tr_comp <- renderDT({ req(tr_atual()); tabela(tr_atual()$composicao) })
+  output$tr_resumo <- renderDT({ req(tr_atual())
+    datatable(tr_atual()$resumo, rownames = FALSE, selection = "single", options = list(pageLength = 20, scrollX = TRUE)) })
+  output$tr_fold <- renderDT({ req(tr_atual()); tabela(tr_atual()$metricas_fold) })
+  output$tr_erros <- renderDT({ req(tr_atual()); tabela(tr_atual()$erros_avisos) })
+  output$tr_g1 <- renderPlot({ req(tr_atual()); grafico_modelos(tr_atual(), escolhido()) })
+  output$tr_g2 <- renderPlot({ jk <- estado$jk[[input$especie]]; req(jk); grafico_jackknife(jk, escolhido()) })
+  output$tr_jk_tab <- renderDT({ jk <- estado$jk[[input$especie]]; req(jk); tabela(jk) })
+  output$tr_g3 <- renderPlot({ r <- estado$roc[[input$especie]]; req(r); grafico_roc(r, paste("Curva ROC -", escolhido())) })
 }
 
 shinyApp(ui, server)

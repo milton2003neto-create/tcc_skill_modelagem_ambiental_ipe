@@ -155,7 +155,15 @@ ajustar_maxnet <- function(p, x, features, rm) {
   chave <- do.call(paste, c(lapply(x, as.character), sep = "|"))
   novo <- which(p == 1)[!(chave[p == 1] %in% chave[p == 0])]
   x2 <- rbind(x, x[novo, , drop = FALSE]); p2 <- c(p, rep(0, length(novo)))
-  maxnet::maxnet(p2, x2, maxnet::maxnet.formula(p, x, classes = features), regmult = rm, addsamplestobackground = FALSE)
+  # glmnet exige >= 2 colunas: 1 variavel continua com feature L gera so 1.
+  # Solucao: copia identica da coluna (no lasso a soma dos 2 coeficientes = coeficiente unico).
+  dup <- NULL
+  if (ncol(x) == 1 && is.numeric(x[[1]]) && features == "l") {
+    dup <- names(x)[1]; x[[".dup"]] <- x[[1]]; x2[[".dup"]] <- x2[[1]]
+  }
+  m <- maxnet::maxnet(p2, x2, maxnet::maxnet.formula(p, x, classes = features), regmult = rm, addsamplestobackground = FALSE)
+  m$coluna_dup <- dup
+  m
 }
 
 #' Cronometra 1 ajuste por classe de feature e estima tempo/memoria totais.
