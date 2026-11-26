@@ -21,17 +21,27 @@ suppressPackageStartupMessages({ library(shiny); library(bslib); library(DT) })
 caixa_ajuda <- function(...) div(class = "alert alert-info", style = "font-size:0.92em", ...)
 tabela <- function(df) datatable(df, rownames = FALSE, options = list(pageLength = 15, scrollX = TRUE))
 
-ui <- page_navbar(
-  title = "Modelagem dos Ipês – TCC UFRA",
-  theme = bs_theme(bootswatch = "flatly"),
-  sidebar = sidebar(
-    width = 260,
-    radioButtons("especie", "Espécie (fluxo separado)",
-                 choices = c("Ipê-roxo" = "roxo", "Ipê-amarelo" = "amarelo")),
-    helpText("Cada espécie tem suas próprias escolhas e sua própria pasta em resultados/."),
-    hr(), helpText("Dados lidos de:"), tags$small(PASTA_DADOS)
-  ),
+# CSS: textos maiores e legiveis; pagina ROLA normalmente (nada fica cortado)
+estilo <- tags$style(HTML("
+  body { font-size: 15px; }
+  .navbar .nav-link { font-size: 15px; padding-left: .55rem !important; padding-right: .55rem !important; }
+  .seletor-especie { display: flex; align-items: center; gap: .6rem; color: #fff; margin: 0 .5rem; }
+  .seletor-especie .form-group { margin: 0; }
+  .seletor-especie label, .seletor-especie .radio-inline { color: #fff !important; font-weight: 600; }
+  .bslib-sidebar-layout > .sidebar { font-size: 14px; }
+  .card { margin-bottom: 1rem; }
+  .card-body { overflow: visible; }
+  pre.shiny-text-output { white-space: pre-wrap; word-break: break-word; font-size: 13.5px; max-height: none; }
+  .alert { margin-bottom: .5rem; }
+  .btn { margin: .2rem 0; width: 100%; }
+  .card .btn { width: auto; margin-right: .4rem; }
+"))
 
+ui <- page_navbar(
+  title = "Ipês – TCC UFRA",
+  theme = bs_theme(bootswatch = "flatly"),
+  fillable = FALSE,                       # nao espreme o conteudo na altura da janela
+  header = estilo,
   nav_panel("1. Diagnóstico",
     caixa_ajuda(
       strong("O que esta etapa faz? "),
@@ -92,7 +102,7 @@ ui <- page_navbar(
                             "Abaixo de ~1 km o ambiente é praticamente o mesmo: a validação mede transferência local, não independente.")))
   ),
   nav_panel("3. Variáveis",
-    layout_sidebar(
+    layout_sidebar(fillable = FALSE,
       sidebar = sidebar(width = 300,
         caixa_ajuda("Usa o plano da aba 2 (só o TREINO). Mostra variáveis redundantes e recomenda quais manter. Você decide marcando as caixas."),
         radioButtons("var_metodo", "Correlação usada na regra", c("Maior |r| das duas (rigoroso)" = "maior", "Spearman (robusta)" = "spearman", "Pearson (linear)" = "pearson")),
@@ -111,7 +121,7 @@ ui <- page_navbar(
         nav_panel("AUC univariada", plotOutput("var_g4"))
       ))),
   nav_panel("4. Background e parâmetros",
-    layout_sidebar(
+    layout_sidebar(fillable = FALSE,
       sidebar = sidebar(width = 320,
         caixa_ajuda("Usa o plano (aba 2) e as variáveis salvas (aba 3)."),
         h6("Background"),
@@ -135,7 +145,7 @@ ui <- page_navbar(
         nav_panel("Grade e custo", DTOutput("par_grade"), DTOutput("par_custo"))
       ))),
   nav_panel("5. Treinamento",
-    layout_sidebar(
+    layout_sidebar(fillable = FALSE,
       sidebar = sidebar(width = 320,
         caixa_ajuda("Roda todos os modelos da grade na validação cruzada por folds. Feche outros programas antes (pouca RAM)."),
         selectInput("tr_cfg", "Configuração salva (aba 4)", choices = NULL),
@@ -155,7 +165,7 @@ ui <- page_navbar(
         nav_panel("Curva ROC", plotOutput("tr_g3", height = 600))
       ))),
   nav_panel("6. Validação",
-    layout_sidebar(
+    layout_sidebar(fillable = FALSE,
       sidebar = sidebar(width = 320,
         caixa_ajuda("Avalia o modelo escolhido (aba 5) nas unidades de VALIDAÇÃO do plano, que o modelo nunca viu."),
         selectInput("va_modelo", "Treinamento salvo (aba 5)", choices = NULL),
@@ -173,7 +183,10 @@ ui <- page_navbar(
         nav_panel("Notas", plotOutput("va_g3", height = 500)),
         nav_panel("Mapa de acertos", plotOutput("va_g4", height = 600))
       ))),
-  nav_panel("Ajuda", card(includeMarkdown("docs/AJUDA.md")))
+  nav_panel("Ajuda", card(caixa_ajuda("Dados lidos de: ", code(PASTA_DADOS)), includeMarkdown("docs/AJUDA.md"))),
+  nav_spacer(),
+  nav_item(div(class = "seletor-especie",
+    radioButtons("especie", "Espécie:", inline = TRUE, choices = c("Ipê-roxo" = "roxo", "Ipê-amarelo" = "amarelo"))))
 )
 
 server <- function(input, output, session) {
@@ -193,7 +206,7 @@ server <- function(input, output, session) {
   output$diag_texto <- renderText({ req(diag()); paste(diag()$texto, collapse = "\n") })
   for (g in c("01", "02", "03", "04", "05", "06")) local({
     gg <- g
-    output[[paste0("g", gg)]] <- renderPlot({ req(diag()); diag()$graficos[[grep(paste0("^G", gg), names(diag()$graficos))]] })
+    output[[paste0("g", gg)]] <- renderPlot({ req(diag()); diag()$graficos[[grep(paste0("^G", gg), names(diag()$graficos))]] }, res = 110)
   })
   for (t in c("01", "02", "03", "04", "05", "06", "07", "08")) local({
     tt <- t
@@ -275,7 +288,7 @@ server <- function(input, output, session) {
               rownames = FALSE, editable = list(target = "cell", disable = list(columns = c(0:2, 4:8))),
               options = list(pageLength = 20, scrollX = TRUE))
   })
-  output$sel_mapa <- renderPlot({ req(plano_atual()); grafico_mapa_plano(plano_atual(), base_atual()) })
+  output$sel_mapa <- renderPlot({ req(plano_atual()); grafico_mapa_plano(plano_atual(), base_atual()) }, res = 110)
   output$sel_prox <- renderDT({ req(plano_atual()$proximidade); tabela(plano_atual()$proximidade) })
   # ---- Etapa 3: variaveis ------------------------------------------------------
   estado$var <- list(); estado$escolha_var <- list(); estado$pasta_var <- list()
@@ -304,10 +317,10 @@ server <- function(input, output, session) {
 ") })
   output$var_rec <- renderDT({ req(var_atual()); tabela(var_atual()$recomendacao[, -1]) })
   output$var_eta <- renderDT({ req(var_atual()); tabela(transform(var_atual()$eta, eta_com_solo = round(eta_com_solo, 3))) })
-  output$var_g1 <- renderPlot({ req(var_atual()); grafico_correlacao(var_atual()) })
-  output$var_g2 <- renderPlot({ req(var_atual()); grafico_vif(var_atual()) })
-  output$var_g3 <- renderPlot({ req(var_atual()); grafico_densidades(var_atual()) })
-  output$var_g4 <- renderPlot({ req(var_atual()); grafico_auc_univ(var_atual()) })
+  output$var_g1 <- renderPlot({ req(var_atual()); grafico_correlacao(var_atual()) }, res = 110)
+  output$var_g2 <- renderPlot({ req(var_atual()); grafico_vif(var_atual()) }, res = 110)
+  output$var_g3 <- renderPlot({ req(var_atual()); grafico_densidades(var_atual()) }, res = 110)
+  output$var_g4 <- renderPlot({ req(var_atual()); grafico_auc_univ(var_atual()) }, res = 110)
   # ---- Etapa 4: background e parametros ----------------------------------------
   estado$bg <- list(); estado$custo <- list(); estado$pasta_cfg <- list()
   observeEvent(list(input$especie, plano_atual()), {
@@ -356,7 +369,7 @@ server <- function(input, output, session) {
       else if (startsWith(a, "ATENCAO")) "alert-warning" else "alert-secondary"), style = "padding:6px;margin:4px 0;font-size:0.9em", a)))
   })
   output$bg_resumo <- renderDT({ b <- estado$bg[[input$especie]]; req(b); tabela(b$resumo) })
-  output$bg_mapa <- renderPlot({ b <- estado$bg[[input$especie]]; req(b); grafico_background(b, base_atual(), plano_atual()) })
+  output$bg_mapa <- renderPlot({ b <- estado$bg[[input$especie]]; req(b); grafico_background(b, base_atual(), plano_atual()) }, res = 110)
   output$par_grade <- renderDT(tabela(grade_atual()))
   output$par_custo <- renderDT({ c1 <- estado$custo[[input$especie]]; req(c1); tabela(c1$tabela) })
   # ---- Etapa 5: treinamento ------------------------------------------------------
@@ -407,10 +420,10 @@ server <- function(input, output, session) {
     datatable(tr_atual()$resumo, rownames = FALSE, selection = "single", options = list(pageLength = 20, scrollX = TRUE)) })
   output$tr_fold <- renderDT({ req(tr_atual()); tabela(tr_atual()$metricas_fold) })
   output$tr_erros <- renderDT({ req(tr_atual()); tabela(tr_atual()$erros_avisos) })
-  output$tr_g1 <- renderPlot({ req(tr_atual()); grafico_modelos(tr_atual(), escolhido()) })
-  output$tr_g2 <- renderPlot({ jk <- estado$jk[[input$especie]]; req(jk); grafico_jackknife(jk, escolhido()) })
+  output$tr_g1 <- renderPlot({ req(tr_atual()); grafico_modelos(tr_atual(), escolhido()) }, res = 110)
+  output$tr_g2 <- renderPlot({ jk <- estado$jk[[input$especie]]; req(jk); grafico_jackknife(jk, escolhido()) }, res = 110)
   output$tr_jk_tab <- renderDT({ jk <- estado$jk[[input$especie]]; req(jk); tabela(jk) })
-  output$tr_g3 <- renderPlot({ r <- estado$roc[[input$especie]]; req(r); grafico_roc(r, paste("Curva ROC -", escolhido())) })
+  output$tr_g3 <- renderPlot({ r <- estado$roc[[input$especie]]; req(r); grafico_roc(r, paste("Curva ROC -", escolhido())) }, res = 110)
   # ---- Etapa 6: validacao ----------------------------------------------------------
   estado$va <- list(); estado$pasta_va <- list()
   observe({
@@ -445,10 +458,10 @@ server <- function(input, output, session) {
   output$va_comp <- renderDT({ req(va_atual()); d <- va_atual()$comparacao; d[-1] <- lapply(d[-1], round, 3); tabela(d) })
   output$va_unid <- renderDT({ req(va_atual()); d <- va_atual()$por_unidade; n <- sapply(d, is.numeric); d[n] <- lapply(d[n], round, 3); tabela(d) })
   output$va_nov <- renderDT({ req(va_atual()); tabela(va_atual()$novidade) })
-  output$va_g1 <- renderPlot({ req(va_atual()); grafico_roc(va_atual()$roc, paste("Curva ROC -", va_atual()$modelo)) })
-  output$va_g2 <- renderPlot({ req(va_atual()); grafico_auc_unidade(va_atual()) })
-  output$va_g3 <- renderPlot({ req(va_atual()); grafico_notas(va_atual()) })
-  output$va_g4 <- renderPlot({ req(va_atual()); grafico_acertos(va_atual()) })
+  output$va_g1 <- renderPlot({ req(va_atual()); grafico_roc(va_atual()$roc, paste("Curva ROC -", va_atual()$modelo)) }, res = 110)
+  output$va_g2 <- renderPlot({ req(va_atual()); grafico_auc_unidade(va_atual()) }, res = 110)
+  output$va_g3 <- renderPlot({ req(va_atual()); grafico_notas(va_atual()) }, res = 110)
+  output$va_g4 <- renderPlot({ req(va_atual()); grafico_acertos(va_atual()) }, res = 110)
 }
 
 shinyApp(ui, server)
