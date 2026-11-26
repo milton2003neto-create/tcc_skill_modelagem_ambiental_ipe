@@ -37,7 +37,7 @@ grade_completa <- function(especie, nucleos = 2) {
     parallel::clusterCall(cl, function(r) { setwd(r); suppressMessages(source("R/11_BUSCA_METODOLOGICA.R", encoding = "UTF-8")); NULL }, RAIZ_PROJETO)
     parallel::clusterExport(cl, "d", envir = environment())
     # lotes do tamanho do numero de nucleos: grava apos cada lote
-    lotes <- split(falta, ceiling(seq_len(nrow(falta)) / nucleos))
+    lotes <- split(falta, ceiling(seq_len(nrow(falta)) / nucleos)); t_ini <- Sys.time()
     for (i in seq_along(lotes)) {
       r <- do.call(rbind, parallel::parLapply(cl, split(lotes[[i]], seq_len(nrow(lotes[[i]]))), function(x) {
         v <- strsplit(x$variaveis, "\\+")[[1]]; t1 <- Sys.time()
@@ -46,8 +46,12 @@ grade_completa <- function(especie, nucleos = 2) {
               segundos = round(as.numeric(difftime(Sys.time(), t1, units = "secs"))))
       }))
       utils::write.table(r, arq, sep = ",", row.names = FALSE, col.names = !file.exists(arq), append = file.exists(arq))
-      if (i %% 10 == 0) message(sprintf("[%s] %s: %d/%d", format(Sys.time(), "%H:%M"), especie,
-                                        length(feitos) + i * nucleos, nrow(g)))
+      feito_agora <- min(length(feitos) + i * nucleos, nrow(g))
+      seg_rest <- as.numeric(difftime(Sys.time(), t_ini, units = "secs")) / i * (length(lotes) - i)
+      linha <- sprintf("[%s] %s: %d/%d (%.0f%%) - faltam ~%.1f h para o %s", format(Sys.time(), "%H:%M"), especie,
+                       feito_agora, nrow(g), 100 * feito_agora / nrow(g), seg_rest / 3600, especie)
+      message(linha)
+      cat(linha, "\n", file = file.path(RAIZ_PROJETO, "resultados", paste0(especie, "_grade.log")), append = TRUE)
       gc(verbose = FALSE)
     }
   }
