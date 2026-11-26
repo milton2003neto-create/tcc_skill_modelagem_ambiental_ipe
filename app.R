@@ -13,6 +13,7 @@ source("R/03_DIAGNOSTICO_DADOS.R", encoding = "UTF-8")
 source("R/04_PREPARAR_PROPRIEDADES_RESERVADAS.R", encoding = "UTF-8")
 source("R/05_SELECAO_TREINO_VALIDACAO.R", encoding = "UTF-8")
 source("R/06_SELECAO_VARIAVEIS.R", encoding = "UTF-8")
+source("R/07_BACKGROUND_E_PARAMETROS.R", encoding = "UTF-8")
 suppressPackageStartupMessages({ library(shiny); library(bslib); library(DT) })
 
 caixa_ajuda <- function(...) div(class = "alert alert-info", style = "font-size:0.92em", ...)
@@ -107,7 +108,30 @@ ui <- page_navbar(
         nav_panel("Presença × background", plotOutput("var_g3", height = 500)),
         nav_panel("AUC univariada", plotOutput("var_g4"))
       ))),
-  nav_panel("4. Background e parâmetros", caixa_ajuda("Em construção (etapa E4).")),
+  nav_panel("4. Background e parâmetros",
+    layout_sidebar(
+      sidebar = sidebar(width = 320,
+        caixa_ajuda("Usa o plano (aba 2) e as variáveis salvas (aba 3)."),
+        h6("Background"),
+        radioButtons("bg_origem", NULL, c("Reaproveitar B2 (recomendado)" = "b2", "Novo sorteio" = "novo")),
+        numericInput("bg_n", "Nº de pontos no treino (vazio = todo o B2)", NA, min = 500, step = 500),
+        numericInput("bg_semente", "Semente (reprodutível)", SEMENTE_PADRAO),
+        conditionalPanel("input.bg_origem == 'novo'", checkboxInput("bg_val", "Novo sorteio também na validação (mesma densidade)", FALSE)),
+        actionButton("bg_preparar", "Preparar background", class = "btn-primary"), hr(),
+        h6("Parâmetros do maxnet"),
+        checkboxGroupInput("par_fc", "Features", FEATURES_DISPONIVEIS, selected = recomendar_grade()$features),
+        textInput("par_rm", "RM (separe por vírgula)", "0.5, 1, 2, 3, 4"),
+        checkboxInput("par_clamp", "Clamping (recomendado)", TRUE),
+        checkboxInput("par_jk", "Incluir Jackknife na estimativa", TRUE),
+        actionButton("par_estimar", "Estimar tempo e memória", class = "btn-warning"),
+        actionButton("par_salvar", "Salvar configuração", class = "btn-success"),
+        uiOutput("par_pasta")),
+      uiOutput("par_avisos"),
+      navset_card_tab(
+        nav_panel("Recomendação", verbatimTextOutput("bg_rec")),
+        nav_panel("Background", DTOutput("bg_resumo"), plotOutput("bg_mapa", height = 550)),
+        nav_panel("Grade e custo", DTOutput("par_grade"), DTOutput("par_custo"))
+      ))),
   nav_panel("5. Treinamento", caixa_ajuda("Em construção (etapa E5).")),
   nav_panel("6. Validação", caixa_ajuda("Em construção (etapa E6).")),
   nav_panel("Ajuda", card(includeMarkdown("docs/AJUDA.md")))
@@ -245,6 +269,57 @@ server <- function(input, output, session) {
   output$var_g2 <- renderPlot({ req(var_atual()); grafico_vif(var_atual()) })
   output$var_g3 <- renderPlot({ req(var_atual()); grafico_densidades(var_atual()) })
   output$var_g4 <- renderPlot({ req(var_atual()); grafico_auc_univ(var_atual()) })
+  # ---- Etapa 4: background e parametros ----------------------------------------
+  estado$bg <- list(); estado$custo <- list(); estado$pasta_cfg <- list()
+  observeEvent(list(input$especie, plano_atual()), {
+    if (is.null(plano_atual())) return()
+    rb <- executar(recomendar_background(plano_atual(), base_atual()))
+    if (!is.null(rb)) updateNumericInput(session, "bg_n", value = rb$n)
+  })
+  output$bg_rec <- renderText({
+    req(plano_atual()); rb <- recomendar_background(plano_atual(), base_atual())
+    paste(c("BACKGROUND", rb$texto, "", "PARAMETROS", recomendar_grade()$texto), collapse = "
+")
+  })
+  rm_vetor <- reactive(suppressWarnings(as.numeric(trimws(strsplit(input$par_rm, "[,;]")[[1]]))))
+  grade_atual <- reactive({ r <- rm_vetor(); req(length(input$par_fc), length(r), !anyNA(r)); grade_parametros(input$par_fc, r) })
+  observeEvent(input$bg_preparar, {
+    if (is.null(plano_atual())) return(showNotification("Gere um plano na aba 2 primeiro.", type = "warning"))
+    n <- if (is.na(input$bg_n)) NULL else input$bg_n
+    if (input$bg_origem == "novo" && is.null(n)) return(showNotification("Informe o nº de pontos do novo sorteio.", type = "error"))
+    b <- executar(withProgress(message = "Preparando background...", value = 0.5,
+      preparar_background(plano_atual(), base_atual(), input$bg_origem, n, input$bg_semente, isTRUE(input$bg_val))))
+    if (!is.null(b)) { estado$bg[[input$especie]] <- b; showNotification("Background pronto.", type = "message") }
+  })
+  variaveis_escolhidas <- reactive(estado$escolha_var[[input$especie]] %||% var_atual()$recomendadas)
+  observeEvent(input$par_estimar, {
+    b <- estado$bg[[input$especie]]; if (is.null(b)) return(showNotification("Prepare o background primeiro.", type = "warning"))
+    if (is.null(variaveis_escolhidas())) return(showNotification("Analise/salve as variáveis na aba 3.", type = "warning"))
+    pr <- marcar_papel(base_atual()$presencas, plano_atual()); pr <- pr[pr$papel %in% "treino", ]
+    k <- length(unique(stats::na.omit(plano_atual()$unidades$fold[plano_atual()$unidades$papel == "treino"])))
+    c1 <- executar(withProgress(message = "Cronometrando 1 ajuste de cada feature...", value = 0.5,
+      estimar_custo(pr, b$treino, variaveis_escolhidas(), grade_atual(), k, input$par_jk)))
+    if (!is.null(c1)) estado$custo[[input$especie]] <- c1
+  })
+  observeEvent(input$par_salvar, {
+    b <- estado$bg[[input$especie]]; req(b, variaveis_escolhidas())
+    pasta <- executar(salvar_config(input$especie, plano_atual(), base_atual(), b, variaveis_escolhidas(), grade_atual(),
+                                    input$par_clamp, estado$custo[[input$especie]], estado$pasta_plano[[input$especie]] %||% NA,
+                                    estado$pasta_var[[input$especie]] %||% NA))
+    if (!is.null(pasta)) { estado$pasta_cfg[[input$especie]] <- pasta; showNotification("Configuração salva.", type = "message") }
+  })
+  output$par_pasta <- renderUI({ p <- estado$pasta_cfg[[input$especie]]; req(p); caixa_ajuda(strong("Salvo em: "), code(p)) })
+  output$par_avisos <- renderUI({
+    av <- c(if (is.null(estado$escolha_var[[input$especie]])) "ATENCAO: variáveis ainda não salvas na aba 3 (usando a recomendação).",
+            estado$custo[[input$especie]]$avisos)
+    req(length(av))
+    tagList(lapply(av, function(a) div(class = paste("alert", if (startsWith(a, "CRITICO")) "alert-danger"
+      else if (startsWith(a, "ATENCAO")) "alert-warning" else "alert-secondary"), style = "padding:6px;margin:4px 0;font-size:0.9em", a)))
+  })
+  output$bg_resumo <- renderDT({ b <- estado$bg[[input$especie]]; req(b); tabela(b$resumo) })
+  output$bg_mapa <- renderPlot({ b <- estado$bg[[input$especie]]; req(b); grafico_background(b, base_atual(), plano_atual()) })
+  output$par_grade <- renderDT(tabela(grade_atual()))
+  output$par_custo <- renderDT({ c1 <- estado$custo[[input$especie]]; req(c1); tabela(c1$tabela) })
 }
 
 shinyApp(ui, server)
