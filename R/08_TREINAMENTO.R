@@ -41,6 +41,7 @@ dados_treino_cfg <- function(cfg, base) {
 }
 
 prever <- function(m, x, clamp, tipo = "cloglog") {
+  loadNamespace("maxnet")   # registra predict.maxnet (necessario ao ler modelos de .rds)
   x <- as.data.frame(x); if (!is.null(m$coluna_dup)) x[[".dup"]] <- x[[m$coluna_dup]]
   as.numeric(stats::predict(m, x, type = tipo, clamp = clamp))
 }

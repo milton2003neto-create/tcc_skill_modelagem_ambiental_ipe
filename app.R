@@ -15,6 +15,7 @@ source("R/05_SELECAO_TREINO_VALIDACAO.R", encoding = "UTF-8")
 source("R/06_SELECAO_VARIAVEIS.R", encoding = "UTF-8")
 source("R/07_BACKGROUND_E_PARAMETROS.R", encoding = "UTF-8")
 source("R/08_TREINAMENTO.R", encoding = "UTF-8")
+source("R/09_VALIDACAO.R", encoding = "UTF-8")
 suppressPackageStartupMessages({ library(shiny); library(bslib); library(DT) })
 
 caixa_ajuda <- function(...) div(class = "alert alert-info", style = "font-size:0.92em", ...)
@@ -153,7 +154,25 @@ ui <- page_navbar(
         nav_panel("Jackknife", plotOutput("tr_g2", height = 450), DTOutput("tr_jk_tab")),
         nav_panel("Curva ROC", plotOutput("tr_g3", height = 600))
       ))),
-  nav_panel("6. Validação", caixa_ajuda("Em construção (etapa E6).")),
+  nav_panel("6. Validação",
+    layout_sidebar(
+      sidebar = sidebar(width = 320,
+        caixa_ajuda("Avalia o modelo escolhido (aba 5) nas unidades de VALIDAÇÃO do plano, que o modelo nunca viu."),
+        selectInput("va_modelo", "Treinamento salvo (aba 5)", choices = NULL),
+        uiOutput("va_situacao"),
+        radioButtons("va_mapas", "Mapas .tif para o QGIS", c("Só propriedades de validação" = "validacao",
+                     "Todas as propriedades" = "todas", "Nenhum" = "nenhum")),
+        actionButton("va_rodar", "Validar", class = "btn-primary"),
+        actionButton("va_salvar", "Salvar + exportar", class = "btn-success"),
+        uiOutput("va_pasta")),
+      uiOutput("va_avisos"),
+      navset_card_tab(
+        nav_panel("Treino × validação", DTOutput("va_comp"), plotOutput("va_g1", height = 600)),
+        nav_panel("Por unidade", plotOutput("va_g2", height = 400), DTOutput("va_unid")),
+        nav_panel("Novidade ambiental", DTOutput("va_nov")),
+        nav_panel("Notas", plotOutput("va_g3", height = 500)),
+        nav_panel("Mapa de acertos", plotOutput("va_g4", height = 600))
+      ))),
   nav_panel("Ajuda", card(includeMarkdown("docs/AJUDA.md")))
 )
 
@@ -392,6 +411,44 @@ server <- function(input, output, session) {
   output$tr_g2 <- renderPlot({ jk <- estado$jk[[input$especie]]; req(jk); grafico_jackknife(jk, escolhido()) })
   output$tr_jk_tab <- renderDT({ jk <- estado$jk[[input$especie]]; req(jk); tabela(jk) })
   output$tr_g3 <- renderPlot({ r <- estado$roc[[input$especie]]; req(r); grafico_roc(r, paste("Curva ROC -", escolhido())) })
+  # ---- Etapa 6: validacao ----------------------------------------------------------
+  estado$va <- list(); estado$pasta_va <- list()
+  observe({
+    estado$pasta_tr[[input$especie]]
+    pastas <- rev(list.dirs(file.path(PASTA_RESULTADOS, input$especie, "05_treino"), recursive = FALSE))
+    pastas <- pastas[file.exists(file.path(pastas, "MODELO_ESCOLHIDO.rds"))]
+    rot <- sapply(pastas, function(p) paste(basename(p), "-", readRDS(file.path(p, "MODELO_ESCOLHIDO.rds"))$modelo))
+    updateSelectInput(session, "va_modelo", choices = setNames(pastas, rot))
+  })
+  me_atual <- reactive({ req(input$va_modelo); readRDS(file.path(input$va_modelo, "MODELO_ESCOLHIDO.rds")) })
+  sit_atual <- reactive({ input$va_rodar; situacao_teste_externo(me_atual(), base_atual()) })
+  output$va_situacao <- renderUI({
+    s <- sit_atual()
+    tagList(div(class = paste("alert", if (s$confirmatorio) "alert-danger" else "alert-info"), style = "font-size:0.88em", s$texto),
+            if (s$confirmatorio) checkboxInput("va_confirmo", "Confirmo: todas as escolhas estão finais e quero abrir o TESTE EXTERNO.", FALSE))
+  })
+  va_atual <- reactive(estado$va[[input$especie]])
+  observeEvent(input$va_rodar, {
+    va <- executar(withProgress(message = "Validando...", value = 0.5,
+      validar_modelo(me_atual(), base_atual(), input$va_modelo, isTRUE(input$va_confirmo))))
+    if (!is.null(va)) estado$va[[input$especie]] <- va
+  })
+  observeEvent(input$va_salvar, {
+    req(va_atual())
+    pasta <- executar(withProgress(message = "Salvando e gerando mapas...", value = 0.5, salvar_validacao(va_atual(), base_atual(), input$va_mapas)))
+    if (!is.null(pasta)) { estado$pasta_va[[input$especie]] <- pasta; showNotification("Validação salva.", type = "message") }
+  })
+  output$va_pasta <- renderUI({ p <- estado$pasta_va[[input$especie]]; req(p); caixa_ajuda(strong("Salvo em: "), code(p)) })
+  output$va_avisos <- renderUI({ req(va_atual())
+    tagList(lapply(va_atual()$avisos, function(a) div(class = paste("alert", if (startsWith(a, "ATENCAO")) "alert-warning" else "alert-secondary"),
+                                                      style = "padding:6px;margin:4px 0;font-size:0.9em", a))) })
+  output$va_comp <- renderDT({ req(va_atual()); d <- va_atual()$comparacao; d[-1] <- lapply(d[-1], round, 3); tabela(d) })
+  output$va_unid <- renderDT({ req(va_atual()); d <- va_atual()$por_unidade; n <- sapply(d, is.numeric); d[n] <- lapply(d[n], round, 3); tabela(d) })
+  output$va_nov <- renderDT({ req(va_atual()); tabela(va_atual()$novidade) })
+  output$va_g1 <- renderPlot({ req(va_atual()); grafico_roc(va_atual()$roc, paste("Curva ROC -", va_atual()$modelo)) })
+  output$va_g2 <- renderPlot({ req(va_atual()); grafico_auc_unidade(va_atual()) })
+  output$va_g3 <- renderPlot({ req(va_atual()); grafico_notas(va_atual()) })
+  output$va_g4 <- renderPlot({ req(va_atual()); grafico_acertos(va_atual()) })
 }
 
 shinyApp(ui, server)
