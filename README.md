@@ -7,7 +7,18 @@ Ferramenta em R/Shiny para modelar a ocorrência de *Handroanthus impetiginosus*
 
 1. Abra `FerramentaIpes.Rproj` no RStudio.
 2. Rode `R/00_SETUP_PACOTES_E_TESTES.R` (botão **Source**). Ele instala/testa os pacotes e confere os dados.
-3. (Próximas etapas) Rode o app com `shiny::runApp()`.
+3. Abra `app.R` e clique em **Run App** (ou `shiny::runApp()`). Siga as abas 1 → 6; a aba **Ajuda** explica cada termo.
+
+| Aba | Script | O que faz |
+|---|---|---|
+| 1. Diagnóstico | `R/03` | Concentração, folds, novidade ambiental, agrupamento |
+| 2. Treino / Validação | `R/04`, `R/05` | Propriedade×propriedade ou UPA×UPA; recomenda e você ajusta; protege as reservadas |
+| 3. Variáveis | `R/06` | Correlação (Pearson/Spearman), VIF, solo; escolha manual |
+| 4. Background e parâmetros | `R/07` | B2 ou novo sorteio; grade features × RM; estimativa de tempo/memória |
+| 5. Treinamento | `R/08` | Todos os modelos nos folds, recomendação, Jackknife, ROC |
+| 6. Validação | `R/09` | Treino × validação, AUC por propriedade, mapas `.tif`/`.gpkg` para o QGIS, teste externo protegido |
+
+Metodologia detalhada (para o TCC): `docs/METODOLOGIA_SCRIPTS.md` e `.docx`.
 
 ## Organização
 

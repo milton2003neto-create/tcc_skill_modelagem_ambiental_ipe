@@ -4,6 +4,20 @@
 Ela tenta descobrir **em que tipo de ambiente** os ipês foram encontrados nos inventários e
 **se esse padrão se repete em outras áreas**. Para isso usa o **MaxEnt** (pacote `maxnet` do R).
 
+### Passo a passo (faça na ordem; escolha a espécie na barra lateral)
+
+| Aba | O que fazer | O que olhar |
+|---|---|---|
+| **1. Diagnóstico** | Clique em *Rodar diagnóstico*. | Se as presenças estão concentradas em poucas propriedades, se algum fold é pequeno e se há novidade ambiental. Isso explica resultados ruins **antes** de modelar. |
+| **2. Treino / Validação** | Escolha *propriedade × propriedade* ou *UPA × UPA* → *Gerar recomendação* → ajuste as listas se quiser → *Aplicar* → *Salvar plano*. | Avisos vermelhos (críticos) e amarelos. A tabela **Composição dos folds** é a que vai no TCC. |
+| **3. Variáveis** | *Analisar variáveis* → marque as que entram → *Salvar escolha*. | Pares muito correlacionados (\|r\| > 0,7) e VIF alto. Se manter duas parecidas, justifique. |
+| **4. Background e parâmetros** | *Preparar background* → escolha features e RM → *Estimar tempo e memória* → *Salvar configuração*. | Tempo estimado e memória livre. Feche outros programas se avisar. |
+| **5. Treinamento** | Escolha a configuração → *Rodar todos os modelos* → (opcional) clique em outro modelo → *Jackknife + ROC* → *Salvar treinamento*. | Omissão P10 perto de 10%, AUC de teste alta e diferença treino–teste pequena. |
+| **6. Validação** | Escolha o treinamento → *Validar* → *Salvar + exportar*. | Queda da AUC do treino para a validação, AUC dentro de cada propriedade e presenças omitidas no mapa. Os `.tif` e `.gpkg` abrem no QGIS. |
+
+Tudo é salvo em `resultados/<espécie>/<etapa>/<data_hora>/`, com um arquivo **LOG** contendo todas as escolhas.
+Para retomar outro dia, as abas 5 e 6 carregam o que já foi salvo.
+
 ### Palavras importantes
 
 | Termo | Em palavras simples |
@@ -25,6 +39,14 @@ Ela tenta descobrir **em que tipo de ambiente** os ipês foram encontrados nos i
 | **Correlação / VIF** | Mostram variáveis que "dizem a mesma coisa" (redundantes). Ex.: BIO12 e BIO17 podem andar juntas. |
 | **Novidade ambiental** | Quando a área de validação tem condições (ex.: chuva) que **não existiam** no treino. O modelo tem que "adivinhar" fora do que conhece → costuma errar. |
 | **Gini / Curva de Lorenz** | Medem concentração: Gini 0 = presenças espalhadas igualmente entre propriedades; perto de 1 = quase tudo em poucas propriedades. |
+| **Limiar P10** | A nota acima da qual estão 90% das presenças de treino. Usado para dizer "adequado" ou "não adequado" no mapa binário. |
+| **MTP** | Limiar mais permissivo: a **menor** nota entre as presenças de treino. |
+| **Ganho (gain)** | Quanto o modelo é melhor do que "chutar uniforme". Usado no Jackknife, como no MaxEnt Java. Ganho de teste negativo = a variável atrapalha em áreas novas. |
+| **AICc** | Critério que penaliza modelos com muitos coeficientes. Menor = melhor equilíbrio entre ajuste e simplicidade. |
+| **Clamping** | Fora da faixa de valores do treino, o modelo "congela" a resposta no último valor conhecido, em vez de extrapolar. |
+| **Cloglog** | Escala da nota do modelo (0 a 1), interpretável como adequabilidade relativa. |
+| **Validação cruzada em blocos** | Cada fold (grupo de propriedades) é deixado de fora uma vez e serve de teste; assim o teste é sempre numa área que o modelo não viu. |
+| **Modo confirmatório** | Quando a validação usa as propriedades reservadas. O app pede confirmação e registra cada abertura, porque o teste externo só vale uma vez. |
 | **N efetivo** | "Quantas propriedades iguais" os dados realmente valem. 12 propriedades com Gini alto podem valer só ~7. |
 
 ### Por que a AUC pode ficar baixa e a omissão alta?
@@ -38,3 +60,10 @@ Ela tenta descobrir **em que tipo de ambiente** os ipês foram encontrados nos i
 O conjunto de **validação final** só pode ser usado **uma vez**, depois que tudo estiver escolhido.
 Se você olhar o resultado e mudar o modelo, ele deixa de ser um teste independente.
 A ferramenta registra e avisa.
+
+### Como ler os resultados mais importantes
+
+- **AUC de treino alta, mas de validação baixa** → o modelo aprendeu as propriedades do treino e não generaliza (transferência fraca).
+- **AUC dentro da propriedade ≈ 0,5** → o modelo distingue **regiões**, mas não onde o ipê fica **dentro** da propriedade.
+- **Jackknife: uma variável sozinha quase igual ao modelo completo** → o modelo depende praticamente dela. Se for uma variável de escala grossa (ex.: clima CHELSA), ela pode estar só "identificando a região".
+- **Omissão P10 muito acima de 10% em uma propriedade** → confira a aba *Novidade ambiental*: provavelmente ela tem condições que o treino não tinha.
