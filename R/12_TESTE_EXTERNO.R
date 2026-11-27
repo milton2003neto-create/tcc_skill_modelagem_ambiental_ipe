@@ -9,7 +9,8 @@
 # PROTOCOLO FINAL (definido ANTES de abrir o teste, pela busca LOPO):
 #   roxo   : Altitude + BIO17; feature L; RM 1 (parcimonia: empatado com o
 #            1o colocado, com menos variaveis)
-#   amarelo: Distancia a hidrografia + BIO12 + Solo; features LQH; RM 2
+#   amarelo: Distancia a hidrografia + BIO12 + Solo; features LQH; RM 1 (RM 0,5-3
+#            diferem < 0,005 de AUC LOPO -> RM 1 padrao, mesma regra do roxo)
 #   ambos  : background B2, clamping, cloglog, 3 folds internos por propriedade
 # SAIDAS : as mesmas das etapas 2-6 + resultados/_geral/teste_externo/<data_hora>/
 #          RESULTADO_TESTE_EXTERNO.csv
@@ -19,7 +20,7 @@ if (!exists("validar_modelo")) source(file.path("R", "09_VALIDACAO.R"), encoding
 
 PROTOCOLO_FINAL <- list(
   roxo    = list(variaveis = c("altitude_m", "bio17_mm_mes"), features = "l", rm = 1),
-  amarelo = list(variaveis = c("dist_rio_raster_m", "bio12_mm_ano", "textura_subgrupo"), features = "lqh", rm = 2))
+  amarelo = list(variaveis = c("dist_rio_raster_m", "bio12_mm_ano", "textura_subgrupo"), features = "lqh", rm = 1))
 
 teste_externo <- function(especie, prot = PROTOCOLO_FINAL[[especie]]) {
   base <- carregar_base_completa(especie)
