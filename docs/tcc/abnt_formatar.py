@@ -136,7 +136,15 @@ antes(AUTOR); vazio(5); antes(runs=TITULO); vazio(3)
 antes(NATUREZA, False, 'Resumo ABNT', recuo_esq=8, entre=1.0)
 antes('Orientadora: Prof.ª Dra. Gracialda Costa Ferreira.', False, 'Resumo ABNT', recuo_esq=8, entre=1.0)
 antes('Coorientadora: Prof.ª Dra. Julia Isabella de Matos Rodrigues.', False, 'Resumo ABNT', recuo_esq=8, entre=1.0)
-vazio(6); antes('BELÉM – PA'); antes('2026', quebra=True)
+import os
+FICHA = os.path.join(os.path.dirname(os.path.abspath(ARQ)), 'ficha_catalografica.png')   # gerada no FICAT da UFRA
+TEM_FICHA = os.path.exists(FICHA)
+vazio(6); antes('BELÉM – PA'); p_rosto_fim = antes('2026', quebra=not TEM_FICHA)
+if TEM_FICHA:
+    # verso da folha de rosto (no digital, logo apos ela): nao contada nem numerada (NBR 14724:2024, 5.3)
+    vazio(14)
+    p_ficha = p_res.insert_paragraph_before('', 'Pre-textual')
+    p_ficha.add_run().add_picture(FICHA, width=Cm(16))
 # FOLHA DE APROVACAO
 antes(AUTOR); vazio(2); antes(runs=TITULO); vazio(2)
 antes(NATUREZA, False, 'Resumo ABNT', recuo_esq=8, entre=1.0); vazio(1)
@@ -219,6 +227,9 @@ def quebra_secao(p_el, inicio=None):
     ppr.append(s)
 # secao 1 = capa (termina no "2026" da capa); secao 2 = folha de rosto ate o sumario (inicia em 1)
 quebra_secao(p_capa_fim._p)
+if TEM_FICHA:
+    quebra_secao(p_rosto_fim._p)          # secao 2: folha de rosto (pagina 1)
+    quebra_secao(p_ficha._p)              # secao 3: ficha catalografica (nao contada)
 ult_pre = primeiro_h1._p.getprevious()
 quebra_secao(ult_pre, inicio=None)
 # a secao 2 comeca na folha de rosto: o sectPr que fecha a secao 2 recebe start=1
@@ -228,7 +239,11 @@ def por_pgnum(sp_el, start):
     ref = next((c for c in sp_el if c.tag in (W('w:cols'), W('w:formProt'), W('w:vAlign'), W('w:noEndnote'), W('w:titlePg'), W('w:textDirection'), W('w:bidi'), W('w:rtlGutter'), W('w:docGrid'), W('w:printerSettings'))), None)
     if ref is not None: ref.addprevious(pn)
     else: sp_el.append(pn)
-por_pgnum(ult_pre.find(W('w:pPr')).find(W('w:sectPr')), 1)
+if TEM_FICHA:
+    por_pgnum(p_rosto_fim._p.find(W('w:pPr')).find(W('w:sectPr')), 1)
+    por_pgnum(ult_pre.find(W('w:pPr')).find(W('w:sectPr')), 2)   # folha de aprovacao = 2
+else:
+    por_pgnum(ult_pre.find(W('w:pPr')).find(W('w:sectPr')), 1)
 # a ultima secao (textual) continua a contagem; cabecalho com o numero a direita
 sec = d.sections[-1]
 sec.header_distance = Cm(2); sec.header.is_linked_to_previous = False
