@@ -12,10 +12,11 @@
 #   F_MAPA_<esp>   adequabilidade nas propriedades (grupos oeste, central e leste)
 #   F_CORREL       correlacao de Pearson/Spearman entre as 6 variaveis (+ TAB_VIF.csv)
 #   F_FLUXOGRAMA   etapas da metodologia
+#   F_GRADE_NVARS / F_GRADE_VARS  945 modelos por especie: AUC x n. de variaveis e contribuicao de cada variavel
 # Uso (na pasta do projeto):
 #   Rscript R/16_FIGURAS_TCC.R roxo                 (todas as figuras da especie)
 #   Rscript R/16_FIGURAS_TCC.R roxo dens jk         (so algumas: dens resp roc tab jk mapa)
-#   Rscript R/16_FIGURAS_TCC.R correlacao | fluxo
+#   Rscript R/16_FIGURAS_TCC.R correlacao | fluxo | grade
 # =============================================================================
 suppressPackageStartupMessages({
   source(file.path("R", "12_TESTE_EXTERNO.R"), encoding = "UTF-8")
@@ -151,11 +152,11 @@ painel_jk <- function(jk, titulo, especie, xmax) {
   ordem <- d$variavel[d$tipo == "Somente a variável"][order(d$ganho_treino[d$tipo == "Somente a variável"])]
   d$nome <- factor(NOMES[d$variavel], levels = NOMES[ordem])
   ggplot(d, aes(ganho_treino, nome, fill = tipo)) +
+    geom_vline(xintercept = tod, linetype = "22", linewidth = 0.45, colour = TXT) +   # atras das barras
     geom_col(position = position_dodge(width = 0.78), width = 0.72) +
     geom_text(aes(label = fmt(ganho_treino, 2), hjust = ifelse(ganho_treino > 0.35 * xmax, 1.15, -0.15),
                   colour = ifelse(ganho_treino > 0.35 * xmax & tipo == "Somente a variável", "white", TXT)),
               position = position_dodge(width = 0.78), size = 2.1, show.legend = FALSE) + scale_colour_identity() +
-    geom_vline(xintercept = tod, linetype = "22", linewidth = 0.45, colour = TXT) +
     annotate("label", x = tod, y = Inf, label = paste0("Todas: ", fmt(tod, 2)), vjust = 1, hjust = 0.5, size = 2.1,
              fill = "white", border.colour = NA, colour = TXT) +
     scale_fill_manual(values = c("Somente a variável" = COR[[especie]], "Sem a variável" = CLARO[[especie]]),
@@ -189,8 +190,12 @@ fig_resposta <- function(especie, ps) {
     if (is.factor(d$bg[[v]])) {
       niv <- levels(d$bg[[v]]); nd <- as.data.frame(ref)[rep(1, length(niv)), , drop = FALSE]; nd[[v]] <- niv
       nd <- fx(nd); nd$s <- prever(me$maxnet, nd[, me$variaveis, drop = FALSE], me$clamp)
-      return(ggplot(nd, aes(.data[[v]], s)) + geom_col(fill = COR[[especie]], width = 0.6) +
-               labs(x = NOMES[[v]], y = if (i == 1) "Adequabilidade (cloglog)" else NULL, title = tit) + tema)
+      nd$rot <- factor(TEXTURAS[as.character(nd[[v]])], levels = TEXTURAS); nd <- nd[!is.na(nd$rot), ]
+      return(ggplot(nd, aes(rot, s)) + geom_col(fill = CLARO[[especie]], width = 0.62) +
+               geom_point(shape = 21, fill = COR[[especie]], colour = "white", stroke = 0.7, size = 2.2) +
+               scale_y_continuous(limits = c(0, NA), expand = expansion(mult = c(0, 0.1)), labels = virg) +
+               labs(x = "Textura do solo (MapBiomas Solo)", y = if (i == 1) "Adequabilidade (cloglog)" else NULL, title = tit) + tema +
+               theme(axis.text.x = element_text(size = 6.5, lineheight = 0.85)))
     }
     r <- quantile(d$bg[[v]], c(0.005, 0.995)); xs <- seq(r[1], r[2], length.out = 200)
     nd <- as.data.frame(ref)[rep(1, 200), , drop = FALSE]; nd[[v]] <- xs; nd <- fx(nd)
@@ -206,7 +211,7 @@ fig_resposta <- function(especie, ps) {
       scale_fill_manual(values = c("Ambiente disponível" = "#BDBDBD", "Presenças" = COR[[especie]]), name = NULL) +
       scale_y_continuous(limits = c(-alt * 1.15, top), breaks = scales::breaks_pretty(4)(c(0, top)), labels = virg,
                          expand = expansion(0)) +
-      scale_x_continuous(expand = expansion(0)) +
+      scale_x_continuous(expand = expansion(0), breaks = scales::breaks_pretty(4), labels = function(z) formatC(z, format = "d", big.mark = ".")) +
       labs(x = NOMES[[v]], y = if (i == 1) "Adequabilidade (cloglog)" else NULL, title = tit) + tema +
       theme(axis.line.x = element_blank())
   })
@@ -389,9 +394,52 @@ fig_fluxograma <- function() {
   salvar(p, "F_FLUXOGRAMA", w = 15, h = 13)
 }
 
+# ---------------- 9) grade completa (945 modelos por especie) ----------------
+ESCOLHIDO <- list(roxo = list(v = "altitude_m+bio17_mm_mes", f = "L", rm = 1),
+                  amarelo = list(v = "dist_rio_raster_m+bio12_mm_ano+textura_subgrupo", f = "LQH", rm = 1))
+fig_grade <- function() {
+  ler <- function(e) { G <- read.csv2(file.path(PASTA_RESULTADOS, e, "08_grade_completa", "GRADE_COMPLETA_ORDENADA.csv")); G$especie <- e; G }
+  G <- rbind(ler("roxo"), ler("amarelo"))
+  rot <- c(roxo = "Handroanthus impetiginosus", amarelo = "Handroanthus serratifolius")
+  pn <- lapply(seq_along(rot), function(i) {
+    e <- names(rot)[i]; x <- G[G$especie == e, ]; es <- ESCOLHIDO[[e]]
+    ch <- x[x$variaveis == es$v & x$features == es$f & x$rm == es$rm, ]
+    mx <- aggregate(auc ~ n_vars, x, max)
+    set.seed(1)
+    ggplot(x, aes(n_vars, auc)) +
+      geom_hline(yintercept = 0.5, colour = "#8C8C8C", linewidth = 0.3, linetype = "22") +
+      geom_jitter(width = 0.18, height = 0, shape = 16, size = 0.9, alpha = 0.35, colour = COR[[e]]) +
+      geom_line(data = mx, colour = TXT, linewidth = 0.45) + geom_point(data = mx, colour = TXT, size = 1.4) +
+      geom_point(data = ch, shape = 23, size = 2.8, fill = "white", colour = TXT, stroke = 0.7) +
+      annotate("text", x = ch$n_vars, y = ch$auc - 0.035, label = "escolhido", hjust = 0.5, size = 2.2, colour = TXT) +
+      scale_x_continuous(breaks = 1:6) + scale_y_continuous(limits = c(0.2, 0.86), breaks = seq(0.2, 0.8, 0.1), labels = virg) +
+      labs(x = "Número de variáveis", y = if (i == 1) "AUC em propriedade nova (LOPO)" else NULL,
+           title = bquote(bold("(" * .(letters[i]) * ")") ~ bolditalic(.(rot[[e]])))) + tema
+  })
+  salvar(pn[[1]] + pn[[2]], "F_GRADE_NVARS", h = 7)
+  # contribuicao de cada variavel: AUC media com - sem
+  cc <- do.call(rbind, lapply(names(rot), function(e) {
+    r <- read.csv2(file.path(PASTA_RESULTADOS, e, "08_grade_completa", "RESUMO_POR_VARIAVEL.csv"))
+    data.frame(especie = e, variavel = r$variavel, ganho = r$auc_com - r$auc_sem) }))
+  cc$nome <- factor(NOMES[cc$variavel], levels = NOMES[names(sort(tapply(cc$ganho, cc$variavel, max)))])
+  cc$sp <- factor(rot[cc$especie], levels = rot)
+  cc$dir <- cc$ganho == ave(cc$ganho, cc$variavel, FUN = max)   # rotulo do maior a direita, do menor a esquerda
+  p <- ggplot(cc, aes(ganho, nome)) +
+    geom_vline(xintercept = 0, colour = "#8C8C8C", linewidth = 0.35) +
+    geom_line(aes(group = nome), colour = GRADE, linewidth = 1.2) +
+    geom_point(aes(fill = sp), shape = 21, colour = "white", stroke = 0.6, size = 2.8) +
+    geom_text(aes(label = sub("^-", "−", fmt(ganho, 3)), colour = sp, hjust = ifelse(dir, -0.35, 1.35)), size = 2.2, show.legend = FALSE) +
+    scale_fill_manual(values = setNames(COR, rot), name = NULL) + scale_colour_manual(values = setNames(c(TXT, TXT), rot)) +
+    scale_x_continuous(labels = function(z) sub("^-", "−", virg(z)), expand = expansion(mult = 0.15)) +
+    labs(x = "Diferença de AUC média (modelos com a variável − modelos sem a variável)", y = NULL) + tema +
+    theme(legend.position = "top", legend.text = element_text(face = "italic"), panel.grid.major.x = element_line(colour = GRADE, linewidth = 0.3), panel.grid.major.y = element_blank())
+  salvar(p, "F_GRADE_VARS", h = 7.5)
+  print(cc)
+}
+
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args)) {
-  if (args[1] == "correlacao") fig_correlacao() else if (args[1] == "fluxo") fig_fluxograma() else {
+  if (args[1] == "correlacao") fig_correlacao() else if (args[1] == "fluxo") fig_fluxograma() else if (args[1] == "grade") fig_grade() else {
     e <- args[1]; ps <- tryCatch(pastas_especie(e), error = function(z) NULL)
     so <- if (length(args) > 1) args[-1] else c("dens", "resp", "roc", "tab", "jk", "mapa")
     if ("dens" %in% so) fig_densidade(e)
