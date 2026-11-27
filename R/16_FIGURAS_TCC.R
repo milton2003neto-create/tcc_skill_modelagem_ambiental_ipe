@@ -72,13 +72,16 @@ pastas_especie <- function(especie) {
 }
 
 # ---------------- 1) densidade por classe (Ferreira, 2009) ----------------
+TEXTURAS <- c("2" = "Muito\nargilosa", "3" = "Argilosa", "4" = "Média-\nargilosa", "6" = "Média-\nsiltosa", "7" = "Média-\narenosa")
 fig_densidade <- function(especie) {
-  d <- read.csv2(file.path(PASTA_RESULTADOS, "_geral", "09_ecologia", "01_DENSIDADE_POR_CLASSE.csv"))
-  vv <- c("altitude_m", "declividade_graus", "dist_rio_raster_m")
-  d <- d[d$especie == c(roxo = "Ipê-roxo", amarelo = "Ipê-amarelo")[[especie]] & d$variavel %in% vv, ]
+  pasta <- file.path(PASTA_RESULTADOS, "_geral", "09_ecologia")
+  rot_sp <- c(roxo = "Ipê-roxo", amarelo = "Ipê-amarelo")[[especie]]
+  d <- read.csv2(file.path(pasta, "01_DENSIDADE_POR_CLASSE.csv")); d <- d[d$especie == rot_sp, ]
+  vv <- c("altitude_m", "declividade_graus", "dist_rio_raster_m", "bio12_mm_ano", "bio17_mm_mes")
   ajustes <- list(); cor <- COR[[especie]]
+  eixo_y <- expression("Densidade (árvores ha"^-1*")")
   paineis <- lapply(seq_along(vv), function(i) {
-    v <- vv[i]; x <- d[d$variavel == v, ]
+    v <- vv[i]; x <- d[d$variavel == v & is.finite(d$dens_media), ]
     m1 <- lm(dens_media ~ x, x); m2 <- lm(dens_media ~ x + I(x^2), x)
     r1 <- summary(m1)$r.squared; r2 <- summary(m2)$r.squared
     usar2 <- (r2 - r1) > 0.1                      # quadratico so quando melhora bem o ajuste
@@ -99,17 +102,29 @@ fig_densidade <- function(especie) {
       geom_ribbon(data = pr, aes(x, ymin = pmax(lwr, 0), ymax = upr), inherit.aes = FALSE, fill = CLARO[[especie]], alpha = 0.7) +
       geom_line(data = pr, aes(x, fit), colour = cor, linewidth = 0.7) +
       geom_errorbar(aes(ymin = pmax(dens_media - dens_ep, 0), ymax = dens_media + dens_ep), width = 0, linewidth = 0.4, colour = "#4D4D4D") +
-      geom_point(shape = 21, fill = cor, colour = "white", stroke = 0.7, size = 2.3) +
-      annotate("text", x = -Inf, y = Inf, label = eq, hjust = -0.04, vjust = 1.3, size = 2.25, colour = TXT) +
-      annotate("text", x = -Inf, y = Inf, label = est, hjust = -0.06, vjust = 3.1, size = 2.25, colour = TXT2) +
-      scale_y_continuous(limits = c(0, NA), expand = expansion(mult = c(0, 0.28)), labels = virg) +
-      scale_x_continuous(labels = function(z) formatC(z, format = "d", big.mark = ".")) +
-      labs(x = NOMES[[v]], y = if (i == 1) expression("Densidade (árvores ha"^-1*")") else NULL,
+      geom_point(shape = 21, fill = cor, colour = "white", stroke = 0.7, size = 2.2) +
+      annotate("text", x = -Inf, y = Inf, label = eq, hjust = -0.04, vjust = 1.3, size = 2.1, colour = TXT) +
+      annotate("text", x = -Inf, y = Inf, label = est, hjust = -0.06, vjust = 3.1, size = 2.1, colour = TXT2) +
+      scale_y_continuous(limits = c(0, NA), expand = expansion(mult = c(0, 0.3)), labels = virg) +
+      scale_x_continuous(breaks = scales::breaks_pretty(4), labels = function(z) formatC(z, format = "d", big.mark = ".")) +
+      labs(x = NOMES[[v]], y = if (i %in% c(1, 4)) eixo_y else NULL,
            title = paste0("(", letters[i], ") ", sub(" \\(.*", "", NOMES[[v]]))) + tema
   })
-  salvar(wrap_plots(paineis, nrow = 1), paste0("F_DENS_", especie), h = 6.4)
-  aj <- do.call(rbind, ajustes); print(aj[, c("variavel", "modelo", "r2_usado", "p")])
+  s <- read.csv2(file.path(pasta, "04_DENSIDADE_SOLO.csv"))
+  s <- s[s$especie == rot_sp & s$area_ha >= 50 & is.finite(s$dens_media), ]
+  s$rot <- factor(TEXTURAS[as.character(s$classe)], levels = TEXTURAS)
+  paineis[[6]] <- ggplot(s, aes(rot, dens_media)) +
+    geom_col(fill = CLARO[[especie]], width = 0.62) +
+    geom_errorbar(aes(ymin = pmax(dens_media - dens_ep, 0), ymax = dens_media + dens_ep), width = 0, linewidth = 0.4, colour = "#4D4D4D") +
+    geom_point(shape = 21, fill = cor, colour = "white", stroke = 0.7, size = 2.2) +
+    geom_text(aes(y = 0, label = paste0(formatC(area_ha, format = "d", big.mark = "."), " ha")), vjust = -0.6, size = 1.9, colour = TXT2) +
+    scale_y_continuous(limits = c(0, NA), expand = expansion(mult = c(0, 0.3)), labels = virg) +
+    labs(x = "Textura do solo (MapBiomas Solo)", y = NULL, title = "(f) Textura do solo") + tema +
+    theme(axis.text.x = element_text(size = 6.5, lineheight = 0.85))
+  salvar(wrap_plots(paineis, nrow = 2), paste0("F_DENS_", especie), h = 12)
+  aj <- do.call(rbind, ajustes); print(aj[, c("variavel", "modelo", "r2_usado", "p", "dens_min", "dens_max", "classe_max", "classe_min")])
   write.csv2(aj, file.path(SAIDA, paste0("AJUSTES_DENS_", especie, ".csv")), row.names = FALSE)
+  print(s[, c("classe", "area_ha", "dens_media", "dens_ep", "n_props")])
 }
 
 # ---------------- 2) Jackknife ----------------
@@ -323,48 +338,55 @@ tab_externo <- function(especie, ps) {
 }
 
 # ---------------- 8) fluxograma da metodologia ----------------
+# Estilo academico simples: caixas retangulares, contorno preto fino, texto curto.
 fig_fluxograma <- function() {
-  etapa <- c(Dados = "#2F6FB5", Modelagem = "#3E9A55", "Avaliação" = "#C9711E")
-  fundo <- c(Dados = "#EAF1FA", Modelagem = "#EBF5EE", "Avaliação" = "#FBF0E6")
-  cx <- 3.5; w <- 3.3; cx2 <- 9.35; w2 <- 1.85; h <- 0.44
-  P <- data.frame(
-    y = c(10, 8.85, 7.7, 6.55, 5.4, 4.25, 3.1, 1.95),
-    grupo = c("Dados", "Dados", "Dados", "Modelagem", "Modelagem", "Modelagem", "Avaliação", "Avaliação"),
-    tit = c("Dados brutos", "Preparação", "Divisão das propriedades", "Ambiente disponível e análise descritiva",
-            "Seleção do modelo (validação LOPO)", "Grade completa (confirmação)", "Modelo final", "Teste externo e produtos"),
-    txt = c("Inventários a 100% de 34 propriedades (11.326 indivíduos)\nANADEM, hidrografia, CHELSA e MapBiomas Solo",
-            "DAP > 10 cm; uma presença por pixel de 30 m\nextração das seis variáveis no QGIS/GDAL",
-            "27 propriedades de desenvolvimento (8.680 presenças)\n7 propriedades reservadas para o teste externo",
-            "background de 10.000 pontos proporcional à área das UPAs\ncorrelação, VIF e densidade por classe",
-            "MaxEnt (maxnet): 57 combinações → 3 melhores\n× 15 configurações de features e RM",
-            "todas as 63 combinações das seis variáveis\n63 × 3 features × 5 RM = 945 modelos por espécie",
-            "ajuste com as 27 propriedades de desenvolvimento\nJackknife, curvas de resposta e curva ROC",
-            "avaliação única nas 7 propriedades reservadas\nmapas de adequabilidade"))
-  P$n <- seq_len(nrow(P))
-  caixa <- function(x0, x1, y0, y1, fill, col) annotation_custom(grid::roundrectGrob(r = unit(0.12, "cm"),
-    gp = grid::gpar(fill = fill, col = col, lwd = 0.9)), xmin = x0, xmax = x1, ymin = y0, ymax = y1)
-  p <- ggplot() + coord_cartesian(xlim = c(-0.2, 11.4), ylim = c(1.35, 10.75), expand = FALSE) + theme_void()
-  for (i in seq_len(nrow(P))) p <- p + caixa(cx - w, cx + w, P$y[i] - h, P$y[i] + h, fundo[[P$grupo[i]]], etapa[[P$grupo[i]]])
-  p <- p + caixa(cx2 - w2, cx2 + w2, 7.7 - h, 7.7 + h, "#F2F2F2", "#7A7A7A")
-  p <- p +
-    annotate("segment", x = cx, xend = cx, y = P$y[-8] - h, yend = P$y[-1] + h + 0.02, linewidth = 0.45, colour = "#5F5F5F",
-             arrow = arrow(length = unit(0.11, "cm"), type = "closed")) +
-    annotate("point", x = cx - w + 0.32, y = P$y, size = 4.2, colour = etapa[P$grupo]) +
-    annotate("text", x = cx - w + 0.32, y = P$y, label = P$n, size = 2.4, colour = "white", fontface = "bold") +
-    annotate("text", x = cx + 0.18, y = P$y + 0.2, label = P$tit, size = 2.6, fontface = "bold", colour = TXT) +
-    annotate("text", x = cx + 0.18, y = P$y - 0.13, label = P$txt, size = 2.05, colour = TXT2, lineheight = 0.9) +
-    annotate("text", x = cx2, y = 7.7 + 0.12, label = "Propriedades reservadas", size = 2.5, fontface = "bold", colour = TXT) +
-    annotate("text", x = cx2, y = 7.7 - 0.17, label = "não utilizadas no ajuste\nnem na seleção dos modelos", size = 2.0,
-             colour = TXT2, lineheight = 0.9) +
-    annotate("segment", x = cx + w, xend = cx2 - w2 - 0.02, y = 7.7, yend = 7.7, linewidth = 0.45, colour = "#5F5F5F",
-             arrow = arrow(length = unit(0.11, "cm"), type = "closed")) +
-    annotate("path", x = c(cx2, cx2, cx + w + 0.6), y = c(7.7 - h, 1.95, 1.95), linewidth = 0.45, linetype = "22", colour = "#7A7A7A") +
-    annotate("segment", x = cx + w + 0.6, xend = cx + w + 0.02, y = 1.95, yend = 1.95, linewidth = 0.45, colour = "#7A7A7A",
-             arrow = arrow(length = unit(0.11, "cm"), type = "closed")) +
-    annotate("text", x = cx2 + 0.17, y = 4.8, label = "usadas uma única vez", angle = 90, size = 2.1, fontface = "italic", colour = TXT2) +
-    annotate("point", x = c(0.22, 2.72, 5.82), y = 10.6, size = 2.6, colour = etapa, shape = 15) +
-    annotate("text", x = c(0.4, 2.9, 6.0), y = 10.6, label = names(etapa), hjust = 0, size = 2.3, colour = TXT2)
-  salvar(p, "F_FLUXOGRAMA", w = 16, h = 13)
+  B <- data.frame(                      # caixas: centro (x, y), meia largura (w), meia altura (h)
+    id  = c("inv", "var", "prep", "proc", "extr", "dev", "res", "desc", "sel", "fin", "ext", "map"),
+    x   = c(2.6, 7.4, 2.6, 7.4, 5.0, 3.0, 8.3, 1.3, 4.3, 4.3, 6.3, 6.3),
+    y   = c(9.3, 9.3, 7.95, 7.95, 6.6, 5.25, 5.25, 3.75, 3.75, 2.4, 1.05, -0.2),
+    w   = c(2.05, 2.05, 2.05, 2.05, 2.6, 1.95, 1.5, 1.2, 1.55, 1.55, 1.75, 1.75),
+    h   = 0.42,
+    txt = c("Inventários florestais a 100%\n34 propriedades (11.326 indivíduos)",
+            "Variáveis ambientais\nANADEM, hidrografia, CHELSA, MapBiomas",
+            "Árvores com DAP > 10 cm\numa presença por pixel de 30 m",
+            "Processamento no QGIS/GDAL\ngrade comum de 30 m",
+            "Extração das seis variáveis nas presenças e no background",
+            "27 propriedades de desenvolvimento\n(8.680 presenças)",
+            "7 propriedades\nreservadas",
+            "Análise descritiva\n(densidade por classe)",
+            "MaxEnt: seleção com\nvalidação LOPO e grade\nde 945 modelos",
+            "Modelo final\n(Jackknife, curvas, ROC)",
+            "Teste externo\n(avaliação única)",
+            "Mapas de adequabilidade"))
+  B$h[B$id == "sel"] <- 0.52
+  seta <- function(x, y, xend, yend, lt = "solid") annotate("segment", x = x, y = y, xend = xend, yend = yend,
+    linewidth = 0.35, linetype = lt, arrow = arrow(length = unit(0.1, "cm"), type = "closed"))
+  linha <- function(x, y) annotate("path", x = x, y = y, linewidth = 0.35)
+  g <- function(id, lado) { b <- B[B$id == id, ]
+    switch(lado, topo = c(b$x, b$y + b$h), base = c(b$x, b$y - b$h), esq = c(b$x - b$w, b$y), dir = c(b$x + b$w, b$y)) }
+  p <- ggplot(B) +
+    geom_rect(aes(xmin = x - w, xmax = x + w, ymin = y - h, ymax = y + h), fill = "white", colour = "black", linewidth = 0.35) +
+    geom_text(aes(x, y, label = txt), size = 2.35, lineheight = 0.92, colour = "black")
+  # dados -> preparo -> extracao
+  p <- p + seta(g("inv", "base")[1], g("inv", "base")[2], g("prep", "topo")[1], g("prep", "topo")[2]) +
+    seta(g("var", "base")[1], g("var", "base")[2], g("proc", "topo")[1], g("proc", "topo")[2]) +
+    linha(c(2.6, 2.6, 4.2), c(7.95 - 0.42, 7.2, 7.2)) + linha(c(7.4, 7.4, 5.8), c(7.95 - 0.42, 7.2, 7.2)) +
+    seta(5.0, 7.2, 5.0, 6.6 + 0.42) + linha(c(4.2, 5.8), c(7.2, 7.2))
+  # extracao -> divisao
+  p <- p + linha(c(5.0, 5.0), c(6.6 - 0.42, 5.9)) + linha(c(3.0, 8.3), c(5.9, 5.9)) +
+    seta(3.0, 5.9, 3.0, 5.25 + 0.42) + seta(8.3, 5.9, 8.3, 5.25 + 0.42)
+  # desenvolvimento -> descritiva e selecao
+  p <- p + linha(c(3.0, 3.0), c(5.25 - 0.42, 4.55)) + linha(c(1.3, 4.3), c(4.55, 4.55)) +
+    seta(1.3, 4.55, 1.3, 3.75 + 0.42) + seta(4.3, 4.55, 4.3, 3.75 + 0.52) +
+    seta(1.3 + 1.2, 3.75, 4.3 - 1.55, 3.75, "22")
+  # selecao -> modelo final -> teste externo -> mapas
+  p <- p + seta(4.3, 3.75 - 0.52, 4.3, 2.4 + 0.42) +
+    linha(c(4.3, 4.3), c(2.4 - 0.42, 1.65)) + linha(c(4.3, 6.3), c(1.65, 1.65)) + seta(6.3, 1.65, 6.3, 1.05 + 0.42) +
+    seta(6.3, 1.05 - 0.42, 6.3, -0.2 + 0.42)
+  # reservadas -> teste externo (so no fim)
+  p <- p + linha(c(8.3, 8.3), c(5.25 - 0.42, 1.05)) + seta(8.3, 1.05, 6.3 + 1.75, 1.05)
+  p <- p + coord_cartesian(xlim = c(0, 10), ylim = c(-0.7, 9.8), expand = FALSE) + theme_void()
+  salvar(p, "F_FLUXOGRAMA", w = 15, h = 13)
 }
 
 args <- commandArgs(trailingOnly = TRUE)
