@@ -87,91 +87,154 @@ tema <- theme_void(base_size = 8, base_family = "sans") +
         axis.ticks.length = unit(0.08, "cm"),
         plot.title = element_text(size = 8, face = "bold", margin = margin(b = 2)),
         plot.margin = margin(3, 4, 3, 4))
-escala <- function(loc = "bl") annotation_scale(location = loc, width_hint = 0.28, height = unit(0.09, "cm"),
+escala <- function(loc = "bl") annotation_scale(location = loc, width_hint = 0.2, height = unit(0.09, "cm"),
   text_cex = 0.5, text_col = "white", bar_cols = c("white", "grey20"), line_col = "white",
   pad_x = unit(0.15, "cm"), pad_y = unit(0.15, "cm"))
 norte <- function(cor = "white") annotation_north_arrow(location = "tr", height = unit(0.6, "cm"),
   width = unit(0.45, "cm"), pad_x = unit(0.12, "cm"), pad_y = unit(0.12, "cm"),
   style = north_arrow_orienteering(fill = c(cor, "grey20"), line_col = "grey20", text_col = cor, text_size = 5))
 
-# ---------------- (a) Brasil ----------------
-area <- caixa(props, m = 0.25, asp = 3)
-a <- ggplot() +
-  geom_sf(data = uf, fill = "grey92", colour = "white", linewidth = 0.2) +
-  geom_sf(data = pa, fill = "#4F772D", colour = "grey20", linewidth = 0.3) +
-  geom_sf(data = st_as_sfc(area), fill = NA, colour = "red", linewidth = 0.45) +
-  annotate("text", x = -52.5, y = -6.2, label = "PA", size = 2.4, fontface = "bold", colour = "white") +
-  coord_sf(xlim = c(-74.5, -34), ylim = c(-34, 5.5), expand = FALSE) +
-  scale_x_continuous(breaks = c(-70, -55, -40), labels = graus("x")) +
-  scale_y_continuous(breaks = c(0, -15, -30), labels = graus("y")) +
-  labs(title = "(a) Brasil") + tema +
-  theme(panel.background = element_rect(fill = "#DCEBF5", colour = NA),
-        panel.grid.major = element_line(colour = "white", linewidth = 0.2))
 
-# ---------------- (b) região de estudo ----------------
+# ---------------- estilo "carta" (caixas laterais com faixa de titulo) ----------------
+VERDE <- "#DCE8DA"; BORDA <- "grey55"
+caixa_tema <- theme(strip.background = element_rect(fill = VERDE, colour = BORDA, linewidth = 0.3),
+                    strip.text = element_text(size = 6.5, face = "bold", margin = margin(2, 0, 2, 0)),
+                    plot.background = element_rect(fill = "grey98", colour = BORDA, linewidth = 0.3),
+                    plot.margin = margin(2, 2, 2, 2))
+faixa <- function(txt) facet_wrap(~ rotulo, labeller = as_labeller(function(x) rep(txt, length(x))))
+com_rotulo <- function(d) { d$rotulo <- "x"; d }
+
+# ---------------- (b) região de estudo (mapa principal) ----------------
+area <- caixa(props, m = 0.2, asp = 2.4)
 grp <- do.call(rbind, lapply(levels(props$regiao), function(r)
   st_sf(regiao = r, geometry = st_as_sfc(caixa(props[props$regiao == r, ], m = 0.05, asp = 1.15)))))
 grp$rot <- c("c", "d", "e")
-f_b <- fundo(area, 8, "regiao")
+grp$xmin <- sapply(st_geometry(grp), function(g) st_bbox(g)[[1]])
+grp$ytop <- sapply(st_geometry(grp), function(g) st_bbox(g)[[4]])
+f_b <- fundo(area, 8, "regiao_v2")
 mun_r <- suppressWarnings(st_crop(mun, area))
 rot_mun <- suppressWarnings(st_point_on_surface(st_crop(mun_est, area)))
 xy <- st_coordinates(rot_mun); rot_mun$x <- xy[, 1]; rot_mun$y <- xy[, 2]
-gxy <- st_coordinates(suppressWarnings(st_centroid(grp)))
-grp$xmin <- sapply(st_geometry(grp), \(g) st_bbox(g)[[1]]); grp$ytop <- sapply(st_geometry(grp), \(g) st_bbox(g)[[4]])
 b <- ggplot() +
   geom_raster(data = f_b, aes(x, y, fill = hex)) + scale_fill_identity() +
-  geom_sf(data = mun_r, fill = NA, colour = alpha("white", 0.55), linewidth = 0.2, linetype = "dashed") +
+  geom_sf(data = mun_r, fill = NA, colour = alpha("white", 0.5), linewidth = 0.2, linetype = "dashed") +
   geom_sf(data = grp, fill = NA, colour = "red", linewidth = 0.5) +
-  geom_label(data = grp, aes(xmin, ytop, label = rot), colour = "white", fill = "red", size = 2.4, fontface = "bold",
-             label.size = 0, label.padding = unit(0.06, "cm"), hjust = 0, vjust = 1, label.r = unit(0, "cm")) +
+  geom_label(data = grp, aes(xmin, ytop, label = rot), colour = "white", fill = "red", size = 2.4,
+             fontface = "bold", label.size = 0, label.padding = unit(0.06, "cm"), hjust = 0, vjust = 1,
+             label.r = unit(0, "cm")) +
+  geom_point(data = cent, aes(x, y, colour = ocorrencia), size = 0.7, show.legend = FALSE) +
+  geom_text_repel(data = rot_mun, aes(x, y, label = toupper(nome)), size = 1.9, colour = "white",
+                  fontface = "bold", bg.color = "grey15", bg.r = 0.12, seed = 3, segment.color = NA, force = 0.5) +
   annotate("text", x = -54.75, y = -2.1, label = "Rio Amazonas", colour = "#BFE3FF", size = 1.9, fontface = "italic", angle = 8) +
   annotate("text", x = -55.2, y = -3.25, label = "Rio Tapajós", colour = "#BFE3FF", size = 1.9, fontface = "italic", angle = 72) +
-  geom_point(data = cent, aes(x, y, colour = ocorrencia), size = 0.7, show.legend = FALSE) +
-  geom_text_repel(data = rot_mun, aes(x, y, label = nome), size = 2, colour = "white", fontface = "italic",
-                  bg.color = "grey15", bg.r = 0.12, seed = 3, segment.color = NA, force = 0.5) +
+  annotate("text", x = area[[1]] + 0.06, y = area[[2]] + 0.07, label = "IMAGEM: ESRI WORLD IMAGERY",
+           hjust = 0, vjust = 0, size = 1.8, colour = "white", fontface = "bold") +
   scale_colour_manual(values = cores) +
-  coord_sf(xlim = area[c(1, 3)], ylim = area[c(2, 4)], expand = FALSE) +
+  coord_sf(xlim = area[c(1, 3)], ylim = area[c(2, 4)], expand = FALSE, label_axes = "ENEN") +
   scale_x_continuous(breaks = seq(-56, -51, 1), labels = graus("x")) +
-  scale_y_continuous(breaks = seq(-4, -1, 1), labels = graus("y")) +
-  escala() + norte() + labs(title = "(b) Região de estudo") + tema
+  scale_y_continuous(breaks = seq(-5, 0, 1), labels = graus("y")) +
+  annotation_scale(location = "br", width_hint = 0.2, height = unit(0.09, "cm"), text_cex = 0.5,
+                   text_col = "white", bar_cols = c("white", "grey20"), line_col = "white") +
+  labs(title = "(b) Região de estudo") + tema
 
 # ---------------- (c–e) grupos ----------------
-painel <- function(r, titulo, zoom) {
-  bb <- caixa(props[props$regiao == r, ], m = 0.05, asp = 1.15)
-  f <- fundo(bb, zoom, paste0("grupo_", r))
+painel <- function(r, titulo, zoom, m = 0.05, loc = "bl") {
+  bb <- caixa(props[props$regiao == r, ], m = m, asp = 1.15)
+  f <- fundo(bb, zoom, paste0("grupo_", r, "_", m))
   mr <- suppressWarnings(st_crop(mun, bb))
   ggplot() +
     geom_raster(data = f, aes(x, y, fill = hex)) + scale_fill_identity() +
     geom_sf(data = mr, fill = NA, colour = alpha("white", 0.6), linewidth = 0.25, linetype = "dashed") +
-    geom_sf(data = props, aes(colour = ocorrencia, linetype = grupo), fill = NA, linewidth = 0.55, key_glyph = "path") +
-    geom_text_repel(data = cent[cent$regiao == r, ], aes(x, y, label = codigo), size = 2.05,
+    geom_sf(data = props, aes(colour = ocorrencia, linetype = grupo), fill = NA, linewidth = 0.5,
+            key_glyph = "path") +
+    geom_text_repel(data = cent[cent$regiao == r, ], aes(x, y, label = codigo), size = 1.8,
                     colour = "white", fontface = "bold", bg.color = "grey10", bg.r = 0.15,
                     min.segment.length = 0.3, segment.colour = "white", segment.size = 0.25,
-                    box.padding = 0.25, max.overlaps = 50, seed = 4) +
+                    box.padding = 0.2, max.overlaps = 50, seed = 4) +
     scale_colour_manual(values = cores, name = "Ocorrência", drop = FALSE) +
     scale_linetype_manual(values = c("Desenvolvimento" = "solid", "Teste externo" = "22"),
-                          name = "Conjunto", drop = FALSE) +
+                          name = "Conjunto de dados", drop = FALSE) +
     coord_sf(xlim = bb[c(1, 3)], ylim = bb[c(2, 4)], expand = FALSE) +
-    scale_x_continuous(breaks = scales::breaks_pretty(3), labels = graus("x")) +
-    scale_y_continuous(breaks = scales::breaks_pretty(3), labels = graus("y")) +
-    escala() + labs(title = titulo) + tema
+    scale_x_continuous(breaks = scales::breaks_pretty(2), labels = graus("x")) +
+    scale_y_continuous(breaks = scales::breaks_pretty(2), labels = graus("y")) +
+    escala(loc) + labs(title = titulo) + tema + theme(plot.title = element_text(size = 7, face = "bold"))
 }
-c_ <- painel("oeste",  "(c) Grupo oeste",   10)
+c_ <- painel("oeste",  "(c) Grupo oeste",   10, m = 0.09, loc = "bl")
 d  <- painel("centro", "(d) Grupo central", 11)
 e  <- painel("leste",  "(e) Grupo leste",   10)
 
-leg <- guides(colour = guide_legend(order = 1, override.aes = list(linewidth = 1)),
-              linetype = guide_legend(order = 2, override.aes = list(colour = "white", linewidth = 0.7)))
-fig <- (a + b + plot_layout(widths = c(1, 2.9))) / (c_ + d + e) +
-  plot_layout(heights = c(1, 1.25), guides = "collect") +
-  plot_annotation(caption = paste0("Sistema de referência geodésico: SIRGAS 2000 (EPSG:4674). ",
-                                   "Limites: IBGE (2024). Imagem: Esri World Imagery (2026)."),
-                  theme = theme(plot.caption = element_text(size = 6, hjust = 0, colour = "grey25"))) &
-  leg & theme(legend.position = "bottom", legend.direction = "horizontal",
-              legend.title = element_text(size = 7, face = "bold"), legend.text = element_text(size = 6.5),
-              legend.key = element_rect(fill = "grey30", colour = NA),
-              legend.key.width = unit(0.7, "cm"), legend.key.height = unit(0.3, "cm"),
-              legend.spacing.x = unit(0.4, "cm"))
-ggsave(file.path(SAIDA, "FIGURA1_LOCALIZACAO.png"), fig, width = 16, height = 11.6, units = "cm",
+# ---------------- coluna lateral ----------------
+a <- ggplot() +
+  geom_sf(data = com_rotulo(uf), fill = "white", colour = "grey55", linewidth = 0.15) +
+  geom_sf(data = com_rotulo(pa), fill = "#A9C8A4", colour = "grey25", linewidth = 0.3) +
+  geom_sf(data = com_rotulo(st_sf(geometry = st_as_sfc(area))), fill = NA, colour = "red", linewidth = 0.4) +
+  annotate("text", x = -52.5, y = -6.6, label = "PARÁ", size = 1.9, fontface = "bold", colour = "grey20") +
+  annotate("text", x = -47, y = -19, label = "BRASIL", size = 1.9, colour = "grey40") +
+  annotate("text", x = -40.5, y = -29, label = "Oceano\nAtlântico", size = 1.6, colour = "#5A8BB0", fontface = "italic") +
+  coord_sf(xlim = c(-74.5, -34), ylim = c(-34, 5.5), expand = FALSE) +
+  theme_void(base_size = 7) +
+  theme(panel.background = element_rect(fill = "#E6F0F7", colour = BORDA, linewidth = 0.3))
+
+res <- do.call(rbind, lapply(levels(props$regiao), function(r) {
+  k <- props$regiao == r
+  mm <- sort(unique(sapply(st_intersects(cent[k, ], mun), function(i) mun$nome[i[1]])))
+  data.frame(Grupo = c(oeste = "Oeste", centro = "Central", leste = "Leste")[[r]],
+             Municipios = paste(mm, collapse = "\n"), Prop = sum(k),
+             Roxo = sum(props$roxo[k]), Amarelo = sum(props$amarelo[k]))
+}))
+res <- rbind(res, data.frame(Grupo = "Total", Municipios = "", Prop = sum(res$Prop),
+                             Roxo = sum(res$Roxo), Amarelo = sum(res$Amarelo)))
+alt <- c(3, 1, 1, 1)                                   # linhas de texto por grupo
+yy <- -cumsum(alt) + alt / 2
+cab <- c("Grupo", "Municípios", "Prop.", "Roxo", "Amar.")
+xs <- c(0.03, 0.25, 0.64, 0.78, 0.92); hj <- c(0, 0, 0.5, 0.5, 0.5)
+lin <- do.call(rbind, lapply(seq_len(nrow(res)), function(i)
+  data.frame(x = xs, y = yy[i], hj = hj, txt = c(res$Grupo[i], res$Municipios[i], res$Prop[i],
+                                                 res$Roxo[i], res$Amarelo[i]),
+             ff = ifelse(res$Grupo[i] == "Total", "bold", "plain"))))
+lin$rotulo <- "x"
+tabela <- ggplot(lin) +
+  annotate("text", x = xs, y = 0.7, label = cab, hjust = hj, size = 1.6, fontface = "bold") +
+  geom_text(aes(x, y, label = txt, hjust = hj, fontface = ff), size = 1.65, lineheight = 0.85) +
+  geom_hline(yintercept = c(1.3, 0.1, -sum(alt[1:3])), linewidth = 0.25, colour = "grey30") +
+  geom_hline(yintercept = -sum(alt), linewidth = 0.25, colour = "grey30") +
+  scale_x_continuous(limits = c(0, 1)) + scale_y_continuous(limits = c(-sum(alt) - 0.2, 1.5)) +
+  theme_void(base_size = 7)
+
+rodape <- ggplot(data.frame(rotulo = "x", x = 0.5, y = 0.3)) + xlim(0, 1) + ylim(0, 1) +
+  geom_text(aes(x = 0.6, y = 0.5), size = 1.6, lineheight = 0.95, colour = "grey15",
+            label = "Sistema de coordenadas geográficas\nDatum: SIRGAS 2000 (EPSG:4674)\nUnidade: graus\nLimites: IBGE (2024)") +
+  annotation_north_arrow(location = "bl", height = unit(0.75, "cm"), width = unit(0.5, "cm"),
+                         pad_x = unit(0.2, "cm"), pad_y = unit(0.15, "cm"), style = north_arrow_fancy_orienteering(text_size = 4.5)) +
+  theme_void(base_size = 7)
+
+# ---------------- montagem tipo compositor de impressao (posicoes absolutas) ----------------
+library(cowplot)
+leg_plot <- c_ + guides(colour = guide_legend(order = 1, ncol = 1, override.aes = list(linewidth = 0.9)),
+                        linetype = guide_legend(order = 2, ncol = 1, override.aes = list(colour = "grey15", linewidth = 0.6))) +
+  theme(legend.position = "right", legend.box.just = "left", legend.title = element_text(size = 5.8, face = "bold"),
+        legend.text = element_text(size = 5.6), legend.key = element_rect(fill = "grey98", colour = NA),
+        legend.background = element_rect(fill = "grey98", colour = NA),
+        legend.key.width = unit(0.5, "cm"), legend.key.height = unit(0.24, "cm"), legend.spacing.y = unit(0.05, "cm"))
+legenda <- get_plot_component(leg_plot, "guide-box-right", return_all = TRUE)
+sem_leg <- theme(legend.position = "none")
+
+caixa_lateral <- function(y0, y1, titulo, x0 = 0.748, x1 = 0.995, hcab = 0.042) list(
+  draw_grob(grid::rectGrob(gp = grid::gpar(fill = "grey98", col = BORDA, lwd = 0.7)), x0, y0, x1 - x0, y1 - y0),
+  draw_grob(grid::rectGrob(gp = grid::gpar(fill = VERDE, col = BORDA, lwd = 0.7)), x0, y1 - hcab, x1 - x0, hcab),
+  draw_label(titulo, x = (x0 + x1) / 2, y = y1 - hcab / 2, size = 6.3, fontface = "bold"))
+dentro <- function(p, y0, y1, x0 = 0.752, x1 = 0.991, hcab = 0.042) draw_plot(p, x0, y0 + 0.004, x1 - x0, y1 - y0 - hcab - 0.008)
+
+fig <- ggdraw() +
+  draw_plot(b + sem_leg, 0, 0.40, 0.735, 0.60) +
+  draw_plot(c_ + sem_leg, 0.000, 0, 0.245, 0.40) +
+  draw_plot(d  + sem_leg, 0.245, 0, 0.245, 0.40) +
+  draw_plot(e  + sem_leg, 0.490, 0, 0.245, 0.40) +
+  caixa_lateral(0.655, 0.99, "(a) LOCALIZAÇÃO NO BRASIL") + dentro(a, 0.655, 0.99) +
+  caixa_lateral(0.425, 0.645, "PROPRIEDADES POR GRUPO") + dentro(tabela, 0.425, 0.645) +
+  caixa_lateral(0.175, 0.415, "LEGENDA") + draw_grob(legenda, 0.752, 0.18, 0.239, 0.19) +
+  caixa_lateral(0.01, 0.165, "REFERÊNCIA ESPACIAL") + dentro(rodape, 0.01, 0.165)
+ggsave(file.path(SAIDA, "FIGURA1_LOCALIZACAO.png"), fig, width = 16, height = 9.9, units = "cm",
        dpi = 300, bg = "white")
-cat("ok\n")
+cat("ok
+")
