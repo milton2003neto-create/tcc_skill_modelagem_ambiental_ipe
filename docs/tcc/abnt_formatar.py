@@ -100,10 +100,11 @@ def limpar_ppr(p_el, manter_estilo=True):
 
 # ------------------------------------------------------------------ pre-textuais
 filhos = list(body.iterchildren())
-i_res = next(i for i, k in enumerate(filhos) if k.tag == W('w:p') and texto(k).strip() == 'RESUMO')
+ANCORA = 'AGRADECIMENTOS' if any(k.tag == W('w:p') and texto(k).strip() == 'AGRADECIMENTOS' for k in filhos) else 'RESUMO'
+i_res = next(i for i, k in enumerate(filhos) if k.tag == W('w:p') and texto(k).strip() == ANCORA)
 for k in filhos[:i_res]:
     if k.tag != W('w:sectPr'): body.remove(k)
-p_res = next(p for p in d.paragraphs if p.text.strip() == 'RESUMO')
+p_res = next(p for p in d.paragraphs if p.text.strip() == ANCORA)
 
 TITULO = [('MODELAGEM AMBIENTAL PREDITIVA DA OCORRÊNCIA DE ', False), ('Handroanthus impetiginosus', True),
           (' E ', False), ('Handroanthus serratifolius', True),
@@ -152,13 +153,16 @@ def fmt_resumo(titulo, pchave):
     pt = next(p for p in d.paragraphs if p.text.strip() == titulo)
     set_estilo(pt._p, 'Titulo pre-textual'); limpar_ppr(pt._p)
     for r in pt.runs: r.bold = True
-    if titulo != 'RESUMO': pt.paragraph_format.page_break_before = True
+    if pt._p is not p_res._p: pt.paragraph_format.page_break_before = True
     el = pt._p.getnext()
     while el is not None and el.tag == W('w:p'):
         set_estilo(el, 'Resumo ABNT'); limpar_ppr(el)
         if texto(el).startswith(pchave): break
         el = el.getnext()
 fmt_resumo('RESUMO', 'Palavras-chave'); fmt_resumo('ABSTRACT', 'Keywords')
+if ANCORA == 'AGRADECIMENTOS':   # titulo centralizado; texto em 1,5 com recuo (elemento opcional, NBR 14724:2024)
+    set_estilo(p_res._p, 'Titulo pre-textual'); limpar_ppr(p_res._p)
+    for r in p_res.runs: r.bold = True
 p_kw = next(p for p in d.paragraphs if p.text.startswith('Keywords'))
 
 # ------------------------------------------------------------------ campos (sumario e listas)
